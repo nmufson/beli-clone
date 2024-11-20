@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// need to change to use ranking algorithm 
+// pairwise comparison
+
+
+
+model User {
+  id                Int              @id @default(autoincrement())
+  email             String           @unique
+  password          String
+  firstName         String
+  lastName          String
+  bio               String?
+  profilePictureUrl String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  books             UserBook[]
+  posts             Post[]
+  followers         UserFollower[]   @relation("userFollowers")
+  following         UserFollower[]   @relation("userFollowing")
+  followRequests    FollowRequest[]
+}
+
+model UserFollower {
+  userId     Int
+  followerId Int
+  user       User  @relation("userFollowers", fields: [userId], references: [id], onDelete: Cascade)
+  follower   User  @relation("userFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+
+  @@id([userId, followerId])
+}
+
+model FollowRequest {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     String   // "pending", "accepted", "rejected"
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation(fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId]) // Prevent duplicate follow requests
+}
+
+model UserBook {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  googleBooksId String
+  title      String
+  author     String
+  genre      String
+  description String?
+  imageUrl   String?
+  autoRating Int?                  // Algorithmically assigned rating out of 10
+  userNote   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comparisonsAsBook1 PairwiseComparison[] @relation("book1")
+  comparisonsAsBook2 PairwiseComparison[] @relation("book2")
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  googleBooksId String
+  bookName   String
+  bookAuthor String
+  userRating Int      @default(0)
+  userNote   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes      Like[]
+  comments   Comment[]
+}
+
+model Like {
+  id         Int       @id @default(autoincrement())
+  postId     Int?      
+  commentId  Int?     
+  userId     Int       
+
+  post       Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment    Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@check(postId IS NOT NULL OR commentId IS NOT NULL)
+  @@check(NOT (postId IS NOT NULL AND commentId IS NOT NULL))
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  postId     Int
+  userId     Int
+  content    String
+  createdAt  DateTime @default(now())
+
+  likes      Like[]
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
