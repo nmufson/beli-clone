@@ -1,7 +1,9 @@
-function calculateRating(
+import * as bookServices from '../services/bookServices';
+
+export async function calculateRating(
+  userId: number,
   pairwiseResults: { winnerId: number; loserId: number }[],
   userReaction: string,
-  rangeBooks: { id: number; title: string; autoRating: number }[],
   newBookId: number,
 ): number {
   const initialRange = {
@@ -12,10 +14,13 @@ function calculateRating(
 
   const range = initialRange[userReaction];
 
+  const rangeBooks = await bookServices.getAllBooksInRange(userId, range);
+
   const allBooks = [
     ...rangeBooks,
     { id: newBookId, title: 'newBook', autoRating: (range[1] - range[0]) / 2 },
   ];
+
   pairwiseResults.forEach(({ winnerId, loserId }) => {
     const winnerIndex = allBooks.findIndex((book) => book.id === winnerId);
     const loserIndex = allBooks.findIndex((book) => book.id === loserId);
@@ -32,11 +37,10 @@ function calculateRating(
       range[0] + (index / (allBooks.length - 1)) * (range[1] - range[0]),
   }));
 
+  await bookServices.updateBookRatings(newRatings);
+
   const newBook = newRatings.find((book) => book.id === newBookId);
-
-  return newBook ? Math.min(10, Math.max(0, newBook.autoRating)) : 0;
-
-  // we should return all the new ratings and update them in the db
+  return newBook;
 }
 
 export default calculateRating;

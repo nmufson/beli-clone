@@ -1,0 +1,22 @@
+.searchItem {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  border-bottom: 1px solid var(--charcoal);
+  gap: 1.5rem;
+}
+
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+  max-width: 50%;
+}
+
+.addContainer {
+  margin-left: auto;
+}
+
+.searchItem svg {
+  height: 2rem;
+  width: 2rem;
+}

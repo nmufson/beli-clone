@@ -1,0 +1,15 @@
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+.footer svg {
+  height: 2rem;
+  width: 2rem;
+}
+
+.footer p {
+  font-size: 0.7rem;
+}

@@ -1,27 +1,4 @@
-async function pairwiseComparisons(
-  comparableBooks: any[],
-  newBook: { googleBooksId: string; title: string },
-) {
-  const pairwiseResults: { winnerId: number; loserId: number }[] = [];
-
-  for (const book of comparableBooks) {
-    const userPreference = await askUserPreference(newBook, book);
-    if (userPreference === 'newBook') {
-      pairwiseResults.push({
-        winnerId: newBook.googleBooksId,
-        loserId: book.id,
-      });
-    } else {
-      pairwiseResults.push({
-        winnerId: book.id,
-        loserId: newBook.googleBooksId,
-      });
-    }
-  }
-
-  return pairwiseResults;
-}
-
+// this will go in the frontend
 async function performBinarySearchComparisons(
   sortedBooks: { id: number; autoRating: number; title: string }[],
   newBook: { id: number; title: string },

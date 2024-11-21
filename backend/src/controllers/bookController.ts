@@ -21,13 +21,12 @@ export async function startAddUserBook(req, res) {
     liked: [6.67, 10],
   }[userReaction];
 
-  const numOfBooks = 7;
+  const numBooks = 7;
 
-  const comparableBooks = await bookServices.getBooksInRange(
+  const comparableBooks = await bookServices.getBookDistribution(
     userId,
     initialRange,
-    genre,
-    numOfBooks,
+    numBooks,
   );
 
   const newBook = await bookServices.newUserBook({
@@ -42,7 +41,7 @@ export async function startAddUserBook(req, res) {
     autoRating: null, // rating added later
   });
 
-  if (comparableBooks.length < numOfBooks) {
+  if (comparableBooks.length < numBooks) {
     return res.status(201).json({
       message: 'Successfully Added book without rating ',
       newBook,
