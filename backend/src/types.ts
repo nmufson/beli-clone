@@ -14,7 +14,8 @@ export interface newBookData {
   author: string;
   genre: string;
   imageUrl?: string;
-  userNote?: string;
+  userNote?: string | null;
   autoRating?: number | null; // Allow null if no rating is assigned
-  userReaction: string;
+  userReaction?: string | null;
+  status: string;
 }

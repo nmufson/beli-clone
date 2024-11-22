@@ -9,8 +9,6 @@ export async function newUser({
   hashedPassword,
   firstName,
   lastName,
-  bio,
-  profilePictureUrl,
 }: NewUserData) {
   return await catchQuery(() =>
     prisma.user.create({
@@ -19,8 +17,6 @@ export async function newUser({
         password: hashedPassword,
         firstName,
         lastName,
-        bio,
-        profilePictureUrl,
       },
     }),
   );
@@ -30,6 +26,14 @@ export async function getUserByEmail(email: string) {
   return await catchQuery(() =>
     prisma.user.findUnique({
       where: { email },
+    }),
+  );
+}
+
+export async function getUserById(id: number) {
+  return await catchQuery(() =>
+    prisma.user.findUnique({
+      where: { id },
     }),
   );
 }

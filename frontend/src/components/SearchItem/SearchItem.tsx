@@ -6,23 +6,21 @@ import { useNavigate } from 'react-router-dom';
 import createSlug from '../../utils/createSlug';
 import { ContextHandlerImpl } from 'express-validator/lib/chain';
 
-const SearchItem = ({ bookItem }) => {
-  const volume = bookItem.volumeInfo;
-  const slug = createSlug(volume.title);
-  const updatedVolume = { ...volume, slug };
+const SearchItem = ({ book }) => {
+  const slug = createSlug(book.title);
 
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/book/${updatedVolume.slug}`);
+    navigate(`/book/${book.googleBooksId}/${slug}`, { state: { book } });
   };
 
   return (
     <div className={styles.searchItem} onClick={handleClick}>
       <BookIcon />
       <div className={styles.infoContainer}>
-        <p>{volume.title}</p>
-        {volume.authors && <small>{volume.authors[0]}</small>}
+        <p>{book.title}</p>
+        {book.author && <small>{book.author}</small>}
       </div>
 
       <div className={styles.addContainer}>

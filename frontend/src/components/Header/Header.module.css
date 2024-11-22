@@ -1,3 +1,10 @@
+.headerContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
 .searchButton {
   background-color: var(--soft-gray);
   color: var(--medium-gray);

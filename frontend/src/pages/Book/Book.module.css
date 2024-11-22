@@ -1,0 +1,69 @@
+.bookContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.imageContainer {
+  /* somehow pull the color from the thumbnail??  */
+  background-color: var(--teal);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.imageContainer img {
+  max-height: 200px;
+  width: auto;
+  object-fit: contain;
+}
+
+.imageContainer p {
+  color: var(--white);
+  border: 1px solid var(--charcoal);
+  border-radius: 0.1rem;
+  padding: 0.2rem;
+}
+
+.bottomContainer {
+  width: 95%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.bookContainer h1 {
+  text-align: center;
+}
+
+.ratings {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  width: 100%;
+}
+
+.addBook {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--teal);
+  border-radius: 0.2rem;
+}
+
+.addBook p {
+  padding: 0.3rem 0 0.3rem 0.5rem;
+}
+
+.addBook svg {
+  width: 2rem;
+  height: 2rem;
+  border-left: 0.2px solid var(--charcoal);
+}

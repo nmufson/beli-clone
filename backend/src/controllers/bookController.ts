@@ -1,8 +1,23 @@
 import * as bookServices from '../services/bookServices';
+import { BookStatus } from '@prisma/client';
 import calculateRating from '../utils/calculateRating';
 
-export async function startAddUserBook(req, res) {
+export async function addFinishedBook(req, res) {
   const {
+    userId,
+    googleBooksId,
+    title,
+    author,
+    genre,
+    imageUrl,
+    userNote, // could be null depending on status
+    userReaction, // could be null depending on status
+    status,
+  } = req.body;
+
+  // add validation
+
+  const addedBook = await bookServices.addBook({
     userId,
     googleBooksId,
     title,
@@ -11,9 +26,9 @@ export async function startAddUserBook(req, res) {
     imageUrl,
     userNote,
     userReaction,
-  } = req.body;
-
-  // add validation
+    autoRating: null, // rating added later
+    status,
+  });
 
   const initialRange = {
     disliked: [0, 3.33],
@@ -28,30 +43,43 @@ export async function startAddUserBook(req, res) {
     initialRange,
     numBooks,
   );
+  if (comparableBooks.length < numBooks) {
+    return res.status(201).json({
+      message: 'Successfully Added book without rating ',
+      addedBook,
+    });
+  }
 
-  const newBook = await bookServices.newUserBook({
+  return res.status(201).json({
+    message: 'Successfully fetched comparable books',
+    addedBook,
+    comparableBooks,
+  });
+}
+
+export async function addBookToShelf(req, res) {
+  const { userId, googleBooksId, title, author, genre, imageUrl, status } =
+    req.body;
+
+  const addedBook = await bookServices.addBook({
     userId,
     googleBooksId,
     title,
     author,
     genre,
     imageUrl,
-    userNote,
-    userReaction,
-    autoRating: null, // rating added later
+    status,
   });
 
-  if (comparableBooks.length < numBooks) {
-    return res.status(201).json({
-      message: 'Successfully Added book without rating ',
-      newBook,
-    });
+  if (!addedBook) {
+    return res
+      .status(500)
+      .json({ message: 'Book could not be added to shelf' });
   }
 
   return res.status(201).json({
-    message: 'Successfully fetched comparable books',
-    newBook,
-    comparableBooks,
+    message: 'Book successfully added to shelf',
+    addedBook,
   });
 }
 

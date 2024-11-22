@@ -1,19 +1,20 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, BookStatus } from '@prisma/client';
 import catchQuery from '../utils/catchQuery';
 import { newBookData } from '../types';
 
 const prisma = new PrismaClient();
 
-export async function newUserBook({
+export async function addBook({
   userId,
   googleBooksId,
   title,
   author,
   genre,
   imageUrl,
-  userNote,
+  userNote = null,
   autoRating = null,
-  userReaction,
+  userReaction = null,
+  status,
 }: newBookData) {
   return await catchQuery(() =>
     prisma.userBook.create({
@@ -27,6 +28,7 @@ export async function newUserBook({
         userNote,
         autoRating,
         userReaction,
+        status,
       },
     }),
   );

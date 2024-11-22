@@ -66,14 +66,22 @@ model UserBook {
   genre      String
   description String?
   imageUrl   String?
-  autoRating Int?                  // Algorithmically assigned rating out of 10
+  autoRating Int?                 
   userNote   String?
+  status     BookStatus
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comparisonsAsBook1 PairwiseComparison[] @relation("book1")
   comparisonsAsBook2 PairwiseComparison[] @relation("book2")
+}
+
+enum BookStatus {
+  WANT_TO_READ
+  CURRENTLY_READING
+  DID_NOT_FINISH
+  FINISHED
 }
 
 model PairwiseComparison {

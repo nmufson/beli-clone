@@ -39,8 +39,14 @@ input::placeholder {
 }
 
 header,
+main,
 footer {
-  min-height: 75px;
+  width: 100%;
+}
+
+header,
+footer {
+  max-height: 75px;
 }
 
 a {

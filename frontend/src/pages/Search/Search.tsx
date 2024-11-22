@@ -1,4 +1,4 @@
-import searchBook from '../../services/googleBookService';
+import { searchBook } from '../../services/googleBookService';
 import SearchItem from '../../components/SearchItem/SearchItem';
 import { useState } from 'react';
 import styles from './Search.module.css';
@@ -10,8 +10,9 @@ const Search = () => {
   // thing on the book specific page
   const onChange = async (e) => {
     try {
-      const data = await searchBook(e.target.value);
-      setSearchItems(data.items);
+      const books = await searchBook(e.target.value);
+
+      setSearchItems(books);
     } catch (error) {
       console.error('Error fetching books:', error.message);
     }
@@ -23,7 +24,7 @@ const Search = () => {
         {searchItems.length > 0 &&
           searchItems
             .slice(0, Math.min(searchItems.length, 5))
-            .map((item) => <SearchItem key={item.id} bookItem={item} />)}
+            .map((item) => <SearchItem key={item.id} book={item} />)}
       </div>
     </div>
   );
