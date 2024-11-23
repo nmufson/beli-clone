@@ -3,8 +3,9 @@ import session from 'express-session';
 import passport from 'passport';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-const LocalStrategy = require('passport-local').Strategy;
+import { Strategy as LocalStrategy } from 'passport-local';
 import { getUserByEmail, getUserById } from './services/userServices';
+import router from './routes/router';
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET, // Used to sign the session ID cookie
+    secret: process.env.SESSION_SECRET || 'default_secret',
     resave: false,
     saveUninitialized: false,
   }),
@@ -27,7 +28,15 @@ app.use(passport.session());
 passport.use(
   new LocalStrategy(
     { usernameField: 'email' },
-    async (email, password, done) => {
+    async (
+      email: string,
+      password: string,
+      done: (
+        error: any,
+        user?: Express.User | false,
+        options?: { message: string },
+      ) => void,
+    ) => {
       try {
         const user = await getUserByEmail(email);
 
@@ -58,3 +67,10 @@ passport.deserializeUser(async (id: number, done) => {
     done(err);
   }
 });
+
+app.use(router);
+
+const PORT = parseInt(process.env.PORT || '5000', 10);
+app.listen(PORT, '0.0.0.0', () =>
+  console.log(`Express app listening on port ${PORT}!`),
+);

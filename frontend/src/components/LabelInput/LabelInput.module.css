@@ -1,0 +1,24 @@
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputContainer input {
+  padding-top: 1.5rem;
+}
+
+.inputContainer label {
+  position: absolute;
+  top: 1rem;
+  left: 0.5rem;
+  font-size: 1rem;
+  color: gray;
+  transition: 0.2s ease all;
+}
+
+.inputContainer input:focus + label,
+.inputContainer input:not(:placeholder-shown) + label {
+  top: 0;
+  font-size: 0.75rem;
+  color: black;
+}

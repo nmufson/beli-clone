@@ -1,8 +1,13 @@
 import * as bookServices from '../services/bookServices';
-import { BookStatus } from '@prisma/client';
-import calculateRating from '../utils/calculateRating';
 
-export async function addFinishedBook(req, res) {
+import { reorderBooks, calculateRatings } from '../utils/calculateRating';
+import { Request, Response, NextFunction } from 'express';
+
+export const addFinishedBook = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const {
     userId,
     googleBooksId,
@@ -10,14 +15,14 @@ export async function addFinishedBook(req, res) {
     author,
     genre,
     imageUrl,
-    userNote, // could be null depending on status
-    userReaction, // could be null depending on status
+    userNote,
+    userReaction,
     status,
   } = req.body;
 
   // add validation
 
-  const addedBook = await bookServices.addBook({
+  const addedBook = await bookServices.addFinishedBook({
     userId,
     googleBooksId,
     title,
@@ -30,38 +35,64 @@ export async function addFinishedBook(req, res) {
     status,
   });
 
-  const initialRange = {
-    disliked: [0, 3.33],
-    okay: [3.34, 6.66],
-    liked: [6.67, 10],
-  }[userReaction];
-
   const numBooks = 7;
 
   const comparableBooks = await bookServices.getBookDistribution(
     userId,
-    initialRange,
+    userReaction,
     numBooks,
+    addedBook.id,
   );
-  if (comparableBooks.length < numBooks) {
-    return res.status(201).json({
-      message: 'Successfully Added book without rating ',
+  if (comparableBooks.length === 0) {
+    res.status(201).json({
+      message: 'Successfully added first book in range ',
       addedBook,
     });
+    return;
   }
 
-  return res.status(201).json({
+  res.status(201).json({
     message: 'Successfully fetched comparable books',
     addedBook,
     comparableBooks,
   });
+  return;
+};
+
+export async function processComparisonResults(req: Request, res: Response) {
+  const { userId, newBookId, reaction, pairwiseResults } = req.body;
+  // add validation
+
+  const updatedBooks = await reorderBooks(userId, pairwiseResults, reaction);
+
+  if (updatedBooks.length > 4) {
+    const updatedNewBook = calculateRatings(userId, newBookId);
+
+    if (!updatedNewBook) {
+      return res
+        .status(500)
+        .json({ message: 'Book not found or could not be updated' });
+    }
+
+    return res.status(201).json({
+      message: 'New book updated with rating',
+      updatedNewBook,
+    });
+  }
+  return res.status(201).json({
+    message: 'Books reordered successfully',
+    updatedBooks,
+  });
 }
 
-export async function addBookToShelf(req, res) {
+export const addBookToShelf = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   const { userId, googleBooksId, title, author, genre, imageUrl, status } =
     req.body;
 
-  const addedBook = await bookServices.addBook({
+  const addedBook = await bookServices.addBookToShelf({
     userId,
     googleBooksId,
     title,
@@ -72,35 +103,13 @@ export async function addBookToShelf(req, res) {
   });
 
   if (!addedBook) {
-    return res
-      .status(500)
-      .json({ message: 'Book could not be added to shelf' });
+    res.status(500).json({ message: 'Book could not be added to shelf' });
+    return;
   }
 
-  return res.status(201).json({
+  res.status(201).json({
     message: 'Book successfully added to shelf',
     addedBook,
   });
-}
-
-export async function processComparisonResults(req, res) {
-  const { userBookId, userReaction, pairwiseResults } = req.body;
-  // add validation
-  const autoRating = calculateRating(pairwiseResults, userReaction);
-
-  const newBook = await bookServices.updateUserBook({
-    userBookId,
-    autoRating,
-  });
-
-  if (!newBook) {
-    return res
-      .status(500)
-      .json({ message: 'Book not found or could not be updated' });
-  }
-
-  return res.status(201).json({
-    message: 'New book updated with rating',
-    newBook,
-  });
-}
+  return;
+};

@@ -15,7 +15,7 @@ const LogIn = () => {
       <small>Already have an account? Sign in below.</small>
 
       <form>
-        <LabelInput label="Email" name="email" />
+        {/* <LabelInput label="Email" name="email" /> */}
         <button>Log In</button>
       </form>
     </div>

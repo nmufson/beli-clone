@@ -35,7 +35,7 @@ input {
 }
 
 input::placeholder {
-  color: var(--soft-gray);
+  color: var(--medium-gray);
 }
 
 header,

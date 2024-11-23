@@ -13,9 +13,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// need to change to use ranking algorithm 
-// pairwise comparison
+enum UserReaction {
+  LIKED
+  OKAY
+  DISLIKED
+}
 
+enum BookStatus {
+  WANT_TO_READ
+  CURRENTLY_READING
+  DID_NOT_FINISH
+  FINISHED
+}
 
 
 model User {
@@ -32,7 +41,11 @@ model User {
   posts             Post[]
   followers         UserFollower[]   @relation("userFollowers")
   following         UserFollower[]   @relation("userFollowing")
-  followRequests    FollowRequest[]
+  followRequestsSent    FollowRequest[] @relation("sentRequests")
+  followRequestsReceived FollowRequest[] @relation("receivedRequests")
+  comparisons            PairwiseComparison[]
+  likes                  Like[]                 
+  comments               Comment[]  
 }
 
 model UserFollower {
@@ -51,38 +64,35 @@ model FollowRequest {
   status     String   // "pending", "accepted", "rejected"
   createdAt  DateTime @default(now())
 
-  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  receiver   User     @relation(fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("sentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("receivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId]) // Prevent duplicate follow requests
 }
 
 model UserBook {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  googleBooksId String
-  title      String
-  author     String
-  genre      String
-  description String?
-  imageUrl   String?
-  autoRating Int?                 
-  userNote   String?
-  status     BookStatus
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  googleBooksId   String
+  title           String
+  author          String
+  genre           String
+  description     String?
+  imageUrl        String?
+  userReaction    UserReaction?
+  order           Int?
+  autoRating      Int?                 
+  userNote        String?
+  status          BookStatus
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comparisonsAsBook1 PairwiseComparison[] @relation("book1")
   comparisonsAsBook2 PairwiseComparison[] @relation("book2")
 }
 
-enum BookStatus {
-  WANT_TO_READ
-  CURRENTLY_READING
-  DID_NOT_FINISH
-  FINISHED
-}
+
 
 model PairwiseComparison {
   id          Int      @id @default(autoincrement())
@@ -122,9 +132,6 @@ model Like {
   post       Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
   comment    Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@check(postId IS NOT NULL OR commentId IS NOT NULL)
-  @@check(NOT (postId IS NOT NULL AND commentId IS NOT NULL))
 }
 
 model Comment {

@@ -1,10 +1,11 @@
-import { PrismaClient, BookStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import catchQuery from '../utils/catchQuery';
-import { newBookData } from '../types';
+import { AddBookData, newBookData, ShelvedBookData } from '../types';
+import { UserReaction, BookStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function addBook({
+export async function addFinishedBook({
   userId,
   googleBooksId,
   title,
@@ -13,9 +14,9 @@ export async function addBook({
   imageUrl,
   userNote = null,
   autoRating = null,
-  userReaction = null,
+  userReaction,
   status,
-}: newBookData) {
+}: Omit<AddBookData, 'id'>): Promise<AddBookData> {
   return await catchQuery(() =>
     prisma.userBook.create({
       data: {
@@ -34,95 +35,101 @@ export async function addBook({
   );
 }
 
-export async function getAllBooksInRange(
-  userId: number,
-  range: [number, number],
-) {
+export async function addBookToShelf({
+  userId,
+  googleBooksId,
+  title,
+  author,
+  genre,
+  imageUrl,
+  status,
+}: Omit<ShelvedBookData, 'id'>): Promise<ShelvedBookData> {
   return await catchQuery(() =>
-    prisma.userBook.findMany({
-      where: {
+    prisma.userBook.create({
+      data: {
         userId,
-        autoRating: {
-          gte: range[0],
-          lte: range[1],
-        },
-      },
-      orderBy: {
-        autoRating: 'asc',
+        googleBooksId,
+        title,
+        author,
+        genre,
+        imageUrl,
+        status,
       },
     }),
   );
 }
 
+export async function getAllBooksByReaction(
+  userId: number,
+  userReaction: UserReaction,
+) {
+  return await catchQuery(() =>
+    prisma.userBook.findMany({
+      where: {
+        userId,
+        userReaction,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    }),
+  );
+}
+
+export async function updateBookOrder(
+  updatedBooks: { id: number; order: number }[],
+) {
+  return await Promise.all(
+    updatedBooks.map((book) =>
+      catchQuery(() =>
+        prisma.userBook.update({
+          where: { id: book.id },
+          data: { order: book.order },
+        }),
+      ),
+    ),
+  );
+}
+// change this to make it by reaction
 // add catchQuery to this
 export async function getBookDistribution(
   userId: number,
-  range: [number, number],
+  userReaction: UserReaction,
   numBooks = 7,
+  excludedBookId: number,
 ) {
-  const step = (range[1] - range[0]) / numBooks; // Divide the range into subranges
-  const books: any[] = [];
-
-  for (let i = 0; i < numBooks; i++) {
-    const subRangeStart = range[0] + i * step;
-    const subRangeEnd = subRangeStart + step;
-
-    // findFirst takes one book
-    const book = await prisma.userBook.findFirst({
-      where: {
-        userId,
-        autoRating: {
-          gte: subRangeStart,
-          lte: subRangeEnd,
-        },
-      },
-      orderBy: {
-        autoRating: 'asc',
-      },
-    });
-
-    if (book) {
-      books.push(book);
-    }
-  }
-
-  const totalBooksInRange = await prisma.userBook.count({
+  const allBooks = await prisma.userBook.findMany({
     where: {
       userId,
-      autoRating: {
-        gte: range[0],
-        lte: range[1],
+      userReaction: userReaction,
+      id: {
+        not: excludedBookId,
       },
+    },
+    orderBy: {
+      order: 'asc',
     },
   });
 
-  if (books.length < numBooks) {
-    const remainingBooksInRange = totalBooksInRange - books.length;
-    const randomSkip = Math.floor(Math.random() * remainingBooksInRange);
-
-    const additionalBooks = await prisma.userBook.findMany({
-      where: {
-        userId,
-        autoRating: {
-          gte: range[0],
-          lte: range[1],
-        },
-        id: {
-          notIn: books.map((book) => book.id),
-        },
-      },
-      orderBy: {
-        autoRating: 'asc',
-      },
-      take: numBooks - books.length,
-      skip: randomSkip,
-      // offset starting point of query
-    });
-
-    books.push(...additionalBooks);
+  if (allBooks.length <= numBooks) {
+    return allBooks;
   }
 
-  return books;
+  const step = Math.floor(allBooks.length / numBooks);
+
+  const distributedBooks = [];
+  for (let i = 0; i < numBooks; i++) {
+    const groupStart = i * step;
+    const groupEnd = i === numBooks - 1 ? allBooks.length : (i + 1) * step;
+    const group = allBooks.slice(groupStart, groupEnd);
+
+    if (group.length > 0) {
+      const randomIndex = Math.floor(Math.random() * group.length);
+      distributedBooks.push(group[randomIndex]);
+    }
+  }
+
+  return distributedBooks;
 }
 
 export async function updateBookRating(userBookId: number, autoRating: number) {
@@ -134,14 +141,12 @@ export async function updateBookRating(userBookId: number, autoRating: number) {
   );
 }
 
-export async function updateBookRatings(
-  userBooks: { userBookId: number; autoRating: number }[],
-) {
+export async function updateBookRatings(updatedBooks: Partial<newBookData>[]) {
   return await Promise.all(
-    userBooks.map((book) =>
+    updatedBooks.map((book) =>
       catchQuery(() =>
         prisma.userBook.update({
-          where: { id: book.userBookId },
+          where: { id: book.id },
           data: { autoRating: book.autoRating },
         }),
       ),

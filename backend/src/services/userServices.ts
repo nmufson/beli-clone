@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import catchQuery from '../utils/catchQuery';
-import { NewUserData } from '../types';
+import { NewUserData, User } from '../types';
 
 const prisma = new PrismaClient();
 
@@ -22,18 +22,18 @@ export async function newUser({
   );
 }
 
-export async function getUserByEmail(email: string) {
+export const getUserByEmail = async (email: string): Promise<User | null> => {
   return await catchQuery(() =>
     prisma.user.findUnique({
       where: { email },
     }),
   );
-}
+};
 
-export async function getUserById(id: number) {
+export const getUserById = async (id: number): Promise<User | null> => {
   return await catchQuery(() =>
     prisma.user.findUnique({
       where: { id },
     }),
   );
-}
+};

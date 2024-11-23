@@ -1,11 +1,16 @@
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
 import * as userServices from '../services/userServices';
+import { Request, Response, NextFunction } from 'express';
 
-export async function signUpUser(req, res, next) {
+export async function signUpUser(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   // check validation here
 
-  const { email, firstName, lastName, password } = req.body;
+  const { email, firstName, lastName, password, confirmPassword } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -47,7 +52,6 @@ export async function logInUser(req, res, next) {
     }
     if (!user) {
       req.session.logInErrors = {
-        // ???
         email: info.field === 'email' ? info.message : '',
         password: info.field === 'password' ? info.message : '',
       };
