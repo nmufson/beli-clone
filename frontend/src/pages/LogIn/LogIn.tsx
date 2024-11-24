@@ -5,8 +5,8 @@ import { useState } from 'react';
 const LogIn = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState({
-    emailError: '',
-    passwordError: '',
+    email: '',
+    password: '',
   });
 
   return (
@@ -16,6 +16,28 @@ const LogIn = () => {
 
       <form>
         {/* <LabelInput label="Email" name="email" /> */}
+        <LabelInput
+          label="Email"
+          name="email"
+          value={formData.email}
+          placeholder="Email"
+          type="email"
+          maxLength={40}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          userFeedback={userFeedback.email}
+        />
+        <LabelInput
+          label="First Name"
+          name="firstName"
+          value={formData.firstName}
+          placeholder="First name"
+          type="text"
+          maxLength={40}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          userFeedback={userFeedback.firstName}
+        />
         <button>Log In</button>
       </form>
     </div>

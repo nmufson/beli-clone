@@ -3,14 +3,26 @@ import session from 'express-session';
 import passport from 'passport';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import { Strategy as LocalStrategy } from 'passport-local';
-import { getUserByEmail, getUserById } from './services/userServices';
+import {
+  getUserByEmail,
+  getUserByEmailMinimal,
+  getUserById,
+  getUserByIdMinimal,
+} from './services/userServices';
 import router from './routes/router';
 
 dotenv.config();
 
 const app = express();
 
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -61,7 +73,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id: number, done) => {
   try {
-    const user = await getUserById(id);
+    const user = await getUserByIdMinimal(id);
     done(null, user);
   } catch (err) {
     done(err);

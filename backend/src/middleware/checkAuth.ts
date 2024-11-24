@@ -1,11 +1,21 @@
-export function checkAuthenticated(req, res, next) {
+import { Request, Response, NextFunction } from 'express';
+
+export function checkAuthenticated(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('/login');
+  res.status(401).json({ message: 'Not authenticated' });
 }
 
-export function preventAuthenticatedAccess(req, res, next) {
+export function preventAuthenticatedAccess(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   if (req.isAuthenticated()) {
     return res.redirect('/feed');
   }

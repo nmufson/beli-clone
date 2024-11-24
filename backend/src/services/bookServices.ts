@@ -1,35 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma, BookStatus, UserReaction } from '@prisma/client';
 import catchQuery from '../utils/catchQuery';
-import { AddBookData, newBookData, ShelvedBookData } from '../types';
-import { UserReaction, BookStatus } from '@prisma/client';
+import { UserBook, AddFinishedBookArgs, addBookToShelfArgs } from '../types';
 
 const prisma = new PrismaClient();
 
-export async function addFinishedBook({
-  userId,
-  googleBooksId,
-  title,
-  author,
-  genre,
-  imageUrl,
-  userNote = null,
-  autoRating = null,
-  userReaction,
-  status,
-}: Omit<AddBookData, 'id'>): Promise<AddBookData> {
+export async function addFinishedBook(
+  data: AddFinishedBookArgs,
+): Promise<Omit<UserBook, 'user'>> {
   return await catchQuery(() =>
     prisma.userBook.create({
       data: {
-        userId,
-        googleBooksId,
-        title,
-        author,
-        genre,
-        imageUrl,
-        userNote,
-        autoRating,
-        userReaction,
-        status,
+        ...data,
+        autoRating: null,
       },
     }),
   );
@@ -43,7 +25,7 @@ export async function addBookToShelf({
   genre,
   imageUrl,
   status,
-}: Omit<ShelvedBookData, 'id'>): Promise<ShelvedBookData> {
+}: addBookToShelfArgs): Promise<Omit<UserBook, 'user'>> {
   return await catchQuery(() =>
     prisma.userBook.create({
       data: {
@@ -62,7 +44,7 @@ export async function addBookToShelf({
 export async function getAllBooksByReaction(
   userId: number,
   userReaction: UserReaction,
-) {
+): Promise<Omit<UserBook, 'user'>[]> {
   return await catchQuery(() =>
     prisma.userBook.findMany({
       where: {
@@ -141,7 +123,9 @@ export async function updateBookRating(userBookId: number, autoRating: number) {
   );
 }
 
-export async function updateBookRatings(updatedBooks: Partial<newBookData>[]) {
+export async function updateBookRatings(
+  updatedBooks: Omit<UserBook, 'user'>[],
+) {
   return await Promise.all(
     updatedBooks.map((book) =>
       catchQuery(() =>

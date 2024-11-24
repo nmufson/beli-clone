@@ -2,12 +2,30 @@ import bcrypt from 'bcryptjs';
 import passport from 'passport';
 import * as userServices from '../services/userServices';
 import { Request, Response, NextFunction } from 'express';
+import { NewUser, User, AuthInfo } from '../types';
+
+export async function checkEmail(req: Request, res: Response): Promise<void> {
+  const { email } = req.body;
+
+  const user = await userServices.getUserByEmail(email);
+  if (user) {
+    res.status(200).json({ available: false });
+    return;
+  }
+  res.status(200).json({ available: true });
+  return;
+}
+
+export function checkAuthStatus(req: Request, res: Response) {
+  res.status(200).json({ user: req.user });
+  return;
+}
 
 export async function signUpUser(
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): Promise<void> {
   // check validation here
 
   const { email, firstName, lastName, password, confirmPassword } = req.body;
@@ -16,7 +34,8 @@ export async function signUpUser(
 
   const existingEmail = await userServices.getUserByEmail(email);
   if (existingEmail) {
-    return res.status(400).json({ message: 'Email already in use' });
+    res.status(400).json({ message: 'Email already in use' });
+    return;
   }
 
   const newUser = await userServices.newUser({
@@ -26,7 +45,10 @@ export async function signUpUser(
     lastName,
   });
 
-  if (!newUser) return res.status(500).send('User could not be created');
+  if (!newUser) {
+    res.status(500).send('User could not be created');
+    return;
+  }
 
   req.login(newUser, (err) => {
     if (err) {
@@ -45,30 +67,35 @@ export async function signUpUser(
   });
 }
 
-export async function logInUser(req, res, next) {
-  passport.authenticate('local', async (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      req.session.logInErrors = {
-        email: info.field === 'email' ? info.message : '',
-        password: info.field === 'password' ? info.message : '',
-      };
-      req.session.logInEmail = req.body.email;
-      return res.redirect('/log-in');
-    }
-
-    req.logIn(user, (err) => {
+export async function logInUser(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  passport.authenticate(
+    'local',
+    async (err: Error, user: User, info: AuthInfo) => {
       if (err) {
         return next(err);
       }
-      return res.redirect('/');
-    });
-  })(req, res, next);
+
+      if (!user) {
+        return res
+          .status(401)
+          .json({ message: info?.message || 'Authentication failed' });
+      }
+
+      req.logIn(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        return res.redirect('/');
+      });
+    },
+  )(req, res, next);
 }
 
-export async function logOutUser(req, res) {
+export async function logOutUser(req: Request, res: Response) {
   req.logout((err) => {
     if (err) {
       console.error('Logout error:', err);

@@ -1,5 +1,5 @@
 import * as bookServices from '../services/bookServices';
-
+import { PrismaClient, Prisma, BookStatus, UserReaction } from '@prisma/client';
 import { reorderBooks, calculateRatings } from '../utils/calculateRating';
 import { Request, Response, NextFunction } from 'express';
 
@@ -17,10 +17,22 @@ export const addFinishedBook = async (
     imageUrl,
     userNote,
     userReaction,
-    status,
+    // status,
   } = req.body;
 
-  // add validation
+  // update this
+  if (
+    !userId ||
+    !googleBooksId ||
+    !title ||
+    !author ||
+    !genre ||
+    !userReaction ||
+    !status
+  ) {
+    res.status(400).json({ error: 'Missing required fields' });
+    return;
+  }
 
   const addedBook = await bookServices.addFinishedBook({
     userId,
@@ -28,11 +40,10 @@ export const addFinishedBook = async (
     title,
     author,
     genre,
-    imageUrl,
-    userNote,
-    userReaction,
-    autoRating: null, // rating added later
-    status,
+    imageUrl: imageUrl || null,
+    userNote: userNote || null,
+    userReaction: userReaction,
+    status: BookStatus.FINISHED,
   });
 
   const numBooks = 7;

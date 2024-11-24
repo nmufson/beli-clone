@@ -11,7 +11,7 @@ interface LabelInputProps {
   placeholder: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
-  userFeedback: any;
+  userFeedback: string;
 }
 
 const LabelInput = ({
@@ -23,7 +23,7 @@ const LabelInput = ({
   placeholder,
   onChange,
   onBlur,
-  userFeedback = {},
+  userFeedback,
 }: LabelInputProps) => {
   const [showLabel, setShowLabel] = useState<boolean>(false);
 
@@ -49,9 +49,9 @@ const LabelInput = ({
           maxLength={maxLength}
           onBlur={onBlur}
           onChange={onChangeLabel}
-          className={userFeedback[name] ? 'input-error' : ''}
+          className={userFeedback ? 'input-error' : ''}
         />
-        <p className="error-message">{userFeedback[name]}</p>
+        <p className={`error-message ${styles.errorMessage}`}>{userFeedback}</p>
       </div>
     </>
   );

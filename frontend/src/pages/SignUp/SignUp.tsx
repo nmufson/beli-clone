@@ -13,7 +13,7 @@ import { validateField } from './SignUpValidation';
 
 const SignUp = () => {
   // modulate this to custom hook?
-
+  const [submitDisabled, setSubmitDisabled] = useState(true);
   const [formData, setFormData] = useState<SignUpFormData>({
     email: '',
     firstName: '',
@@ -21,25 +21,47 @@ const SignUp = () => {
     password: '',
     confirmPassword: '',
   });
-  const [formErrors, setFormErrors] = useState<Partial<SignUpFormErrors>>({});
-  const [userFeedback, setUserFeedback] = useState<Partial<SignUpUserFeedback>>(
-    {},
-  );
+  const [formErrors, setFormErrors] = useState<SignUpFormErrors>({
+    email: '',
+    firstName: '',
+    lastName: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [userFeedback, setUserFeedback] = useState<SignUpUserFeedback>({
+    email: '',
+    firstName: '',
+    lastName: '',
+    password: '',
+    confirmPassword: '',
+  });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target as {
+      name: keyof SignUpFormErrors;
+      value: string;
+    };
 
-    setFormData((prevData) => {
-      const newFormData = {
-        ...prevData,
-        [name]: DOMPurify.sanitize(value.trim()),
-      };
+    const sanitizedValue = DOMPurify.sanitize(value.trim());
 
-      validateField(name, value, newFormData, setFormErrors);
-      return newFormData;
-    });
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: sanitizedValue,
+    }));
+    const newFormErrors = await validateField(
+      name,
+      sanitizedValue,
+      { ...formData, [name]: sanitizedValue },
+      formErrors,
+      setFormErrors,
+    );
+    const hasErrors = Object.values(newFormErrors).some(
+      (error) => error !== '',
+    );
+    const isFilledOut = Object.values(formData).every((value) => value !== '');
+    setSubmitDisabled(hasErrors || !isFilledOut);
 
-    if (!formErrors[name]) {
+    if (!newFormErrors[name]) {
       setUserFeedback((prev) => ({
         ...prev,
         [name]: '',
@@ -48,14 +70,23 @@ const SignUp = () => {
   };
 
   const handleBlur = (e) => {
-    const { name } = e.target;
+    const { name } = e.target as { name: keyof SignUpFormErrors };
 
-    validateField(name, formData[name], formData, setFormErrors).then(() => {
-      setUserFeedback((prev) => ({
-        ...prev,
-        [name]: formErrors[name] || '',
-      }));
-    });
+    validateField(name, formData[name], formData, formErrors, setFormErrors);
+    setUserFeedback((prev) => ({
+      ...prev,
+      [name]: formErrors[name] || '',
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    try {
+      const newUser = await signUpUser(formData);
+      window.location.href = '/feed';
+      // redirect to feed, window location
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -67,9 +98,10 @@ const SignUp = () => {
           value={formData.email}
           placeholder="Email"
           type="email"
+          maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedBack={userFeedback}
+          userFeedback={userFeedback.email}
         />
         <LabelInput
           label="First Name"
@@ -77,9 +109,10 @@ const SignUp = () => {
           value={formData.firstName}
           placeholder="First name"
           type="text"
+          maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedBack={userFeedback}
+          userFeedback={userFeedback.firstName}
         />
         <LabelInput
           label="Last Name"
@@ -87,9 +120,10 @@ const SignUp = () => {
           value={formData.lastName}
           placeholder="Last name"
           type="text"
+          maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedBack={userFeedback}
+          userFeedback={userFeedback.lastName}
         />
         <LabelInput
           label="Password"
@@ -97,9 +131,10 @@ const SignUp = () => {
           value={formData.password}
           placeholder="Password"
           type="password"
+          maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedBack={userFeedback}
+          userFeedback={userFeedback.password}
         />
         <LabelInput
           label="Confirm Password"
@@ -107,12 +142,20 @@ const SignUp = () => {
           value={formData.confirmPassword}
           placeholder="Confirm password"
           type="password"
+          maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedBack={userFeedback}
+          userFeedback={userFeedback.confirmPassword}
         />
       </div>
       <div>
+        <button
+          className={submitDisabled ? styles.disabled : ''}
+          disabled={submitDisabled}
+          onClick={handleSubmit}
+        >
+          Sign Up
+        </button>
         <p>
           Already have an account? <Link to="/login">Log in</Link>
         </p>

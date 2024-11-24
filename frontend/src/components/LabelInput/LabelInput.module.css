@@ -8,12 +8,12 @@
 }
 
 .inputContainer label {
-  position: absolute;
   top: 1rem;
   left: 0.5rem;
   font-size: 1rem;
   color: gray;
   transition: 0.2s ease all;
+  height: 1rem;
 }
 
 .inputContainer input:focus + label,
@@ -21,4 +21,9 @@
   top: 0;
   font-size: 0.75rem;
   color: black;
+}
+
+.errorMessage {
+  min-height: 1rem;
+  color: red;
 }

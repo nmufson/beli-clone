@@ -17,23 +17,12 @@ export const checkEmailAvailability = async (email: string) => {
   return data.available; // bool
 };
 
-export const signUpUser = async ({
-  email,
-  firstName,
-  lastName,
-  password,
-  confirmPassword,
-}: SignUpFormData) => {
+export const signUpUser = async (formData: SignUpFormData) => {
   const response = await fetch(`${API_URL}/users/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email,
-      firstName,
-      lastName,
-      password,
-      confirmPassword,
-    }),
+    body: JSON.stringify(formData),
+    credentials: 'include',
   });
 
   if (!response.ok) {

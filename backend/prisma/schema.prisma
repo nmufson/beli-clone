@@ -43,7 +43,6 @@ model User {
   following         UserFollower[]   @relation("userFollowing")
   followRequestsSent    FollowRequest[] @relation("sentRequests")
   followRequestsReceived FollowRequest[] @relation("receivedRequests")
-  comparisons            PairwiseComparison[]
   likes                  Like[]                 
   comments               Comment[]  
 }
@@ -73,11 +72,10 @@ model FollowRequest {
 model UserBook {
   id              Int      @id @default(autoincrement())
   userId          Int
-  googleBooksId   String
+  googleBooksId   String 
   title           String
   author          String
   genre           String
-  description     String?
   imageUrl        String?
   userReaction    UserReaction?
   order           Int?
@@ -88,24 +86,9 @@ model UserBook {
   updatedAt       DateTime @updatedAt
 
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  comparisonsAsBook1 PairwiseComparison[] @relation("book1")
-  comparisonsAsBook2 PairwiseComparison[] @relation("book2")
 }
 
 
-
-model PairwiseComparison {
-  id          Int      @id @default(autoincrement())
-  userId      Int      // Reference to the user who made the comparison
-  book1Id     Int      // First book in the comparison
-  book2Id     Int      // Second book in the comparison
-  preferredBookId Int  // Book that was preferred in the comparison
-  createdAt   DateTime @default(now())
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book1       UserBook @relation("book1", fields: [book1Id], references: [id], onDelete: Cascade)
-  book2       UserBook @relation("book2", fields: [book2Id], references: [id], onDelete: Cascade)
-}
 
 model Post {
   id         Int      @id @default(autoincrement())
