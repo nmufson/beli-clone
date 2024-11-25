@@ -20,10 +20,6 @@ router.get('/auth/status', checkAuthenticated, userController.checkAuthStatus);
 
 router.post('/check-email', userController.checkEmail);
 
-router.post(
-  '/logout',
-  // auth to logout?
-  userController.logOutUser,
-);
+router.post('/logout', checkAuthenticated, userController.logOutUser);
 
 export default router;

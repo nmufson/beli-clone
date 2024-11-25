@@ -3,11 +3,7 @@ import LabelInput from '../../components/LabelInput/LabelInput';
 import DOMPurify from 'dompurify';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  SignUpFormData,
-  SignUpFormErrors,
-  SignUpUserFeedback,
-} from '../../types';
+import { SignUpFormData, SignUpFormErrors } from '../../types';
 import { signUpUser } from '../../services/signUpService';
 import { validateField } from './SignUpValidation';
 
@@ -22,13 +18,6 @@ const SignUp = () => {
     confirmPassword: '',
   });
   const [formErrors, setFormErrors] = useState<SignUpFormErrors>({
-    email: '',
-    firstName: '',
-    lastName: '',
-    password: '',
-    confirmPassword: '',
-  });
-  const [userFeedback, setUserFeedback] = useState<SignUpUserFeedback>({
     email: '',
     firstName: '',
     lastName: '',
@@ -60,26 +49,16 @@ const SignUp = () => {
     );
     const isFilledOut = Object.values(formData).every((value) => value !== '');
     setSubmitDisabled(hasErrors || !isFilledOut);
-
-    if (!newFormErrors[name]) {
-      setUserFeedback((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
   };
 
   const handleBlur = (e) => {
     const { name } = e.target as { name: keyof SignUpFormErrors };
 
     validateField(name, formData[name], formData, formErrors, setFormErrors);
-    setUserFeedback((prev) => ({
-      ...prev,
-      [name]: formErrors[name] || '',
-    }));
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       const newUser = await signUpUser(formData);
       window.location.href = '/feed';
@@ -90,7 +69,7 @@ const SignUp = () => {
   };
 
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <div>
         <LabelInput
           label="Email"
@@ -101,7 +80,7 @@ const SignUp = () => {
           maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedback={userFeedback.email}
+          error={formErrors.email}
         />
         <LabelInput
           label="First Name"
@@ -112,7 +91,7 @@ const SignUp = () => {
           maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedback={userFeedback.firstName}
+          error={formErrors.firstName}
         />
         <LabelInput
           label="Last Name"
@@ -123,7 +102,7 @@ const SignUp = () => {
           maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedback={userFeedback.lastName}
+          error={formErrors.lastName}
         />
         <LabelInput
           label="Password"
@@ -134,7 +113,7 @@ const SignUp = () => {
           maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedback={userFeedback.password}
+          error={formErrors.password}
         />
         <LabelInput
           label="Confirm Password"
@@ -145,14 +124,14 @@ const SignUp = () => {
           maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedback={userFeedback.confirmPassword}
+          error={formErrors.confirmPassword}
         />
       </div>
       <div>
         <button
-          className={submitDisabled ? styles.disabled : ''}
+          className={`${submitDisabled ? `${styles.disabled} disabled` : ''}`}
           disabled={submitDisabled}
-          onClick={handleSubmit}
+          type="submit" // Use "submit" to trigger the form's onSubmit event
         >
           Sign Up
         </button>
@@ -160,7 +139,7 @@ const SignUp = () => {
           Already have an account? <Link to="/login">Log in</Link>
         </p>
       </div>
-    </div>
+    </form>
   );
 };
 

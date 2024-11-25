@@ -89,7 +89,15 @@ export async function logInUser(
         if (err) {
           return next(err);
         }
-        return res.redirect('/');
+        return res.status(201).json({
+          message: 'User logged in successfully',
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+        });
       });
     },
   )(req, res, next);

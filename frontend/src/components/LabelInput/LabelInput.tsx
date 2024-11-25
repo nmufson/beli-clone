@@ -10,8 +10,8 @@ interface LabelInputProps {
   maxLength: number | undefined;
   placeholder: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
-  userFeedback: string;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  error: string;
 }
 
 const LabelInput = ({
@@ -23,9 +23,10 @@ const LabelInput = ({
   placeholder,
   onChange,
   onBlur,
-  userFeedback,
+  error,
 }: LabelInputProps) => {
   const [showLabel, setShowLabel] = useState<boolean>(false);
+  const [showError, setShowError] = useState<boolean>(false);
 
   const onChangeLabel = (e: React.FocusEvent<HTMLInputElement>) => {
     if (e.target.value) {
@@ -34,6 +35,12 @@ const LabelInput = ({
       setShowLabel(false);
     }
     onChange(e);
+  };
+
+  const handleBlur = (e) => {
+    if (onBlur) onBlur(e);
+
+    setShowError(true);
   };
 
   return (
@@ -47,11 +54,13 @@ const LabelInput = ({
           value={value}
           placeholder={!showLabel ? placeholder : ''}
           maxLength={maxLength}
-          onBlur={onBlur}
+          onBlur={handleBlur}
           onChange={onChangeLabel}
-          className={userFeedback ? 'input-error' : ''}
+          className={error ? 'input-error' : ''}
         />
-        <p className={`error-message ${styles.errorMessage}`}>{userFeedback}</p>
+        <p className={`error-message ${styles.errorMessage}`}>
+          {showError ? error : ''}
+        </p>
       </div>
     </>
   );

@@ -1,21 +1,72 @@
 import styles from './LogIn.module.css';
 import LabelInput from '../../components/LabelInput/LabelInput';
 import { useState } from 'react';
+import DOMPurify from 'dompurify';
+import { logInUser } from '../../services/logInService';
+import { Link } from 'react-router-dom';
+import { validateLogin } from './LogInValidation';
 
 const LogIn = () => {
+  const [submitDisabled, setSubmitDisabled] = useState(true);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState({
     email: '',
     password: '',
   });
 
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    const sanitizedValue = DOMPurify.sanitize(value.trim());
+
+    const newFormData = {
+      ...formData,
+      [name]: sanitizedValue,
+    };
+
+    setFormData(newFormData);
+
+    const newFormErrors = validateLogin(
+      name,
+      value,
+      { ...formData, [name]: sanitizedValue },
+      formErrors,
+      setFormErrors,
+    );
+
+    const hasErrors = Object.values(newFormErrors).some(
+      (error) => error !== '',
+    );
+    const isFilledOut = Object.values(newFormData).every(
+      (value) => value !== '',
+    );
+    setSubmitDisabled(hasErrors || !isFilledOut);
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+
+    validateLogin(name, value, formData, formErrors, setFormErrors);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const user = await logInUser(formData, setFormErrors);
+      console.log(user);
+      // window.location.href = '/feed';
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <h1>Welcome back!</h1>
-      <small>Already have an account? Sign in below.</small>
+      <small>Sign in below.</small>
 
-      <form>
-        {/* <LabelInput label="Email" name="email" /> */}
+      <form onSubmit={handleSubmit}>
         <LabelInput
           label="Email"
           name="email"
@@ -25,20 +76,31 @@ const LogIn = () => {
           maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedback={userFeedback.email}
+          error={formErrors.email}
         />
         <LabelInput
-          label="First Name"
-          name="firstName"
-          value={formData.firstName}
-          placeholder="First name"
-          type="text"
+          label="Password"
+          name="password"
+          value={formData.password}
+          placeholder="Password"
+          type="password"
           maxLength={40}
           onChange={handleChange}
           onBlur={handleBlur}
-          userFeedback={userFeedback.firstName}
+          error={formErrors.password}
         />
-        <button>Log In</button>
+        <div>
+          <button
+            className={`${submitDisabled ? `${styles.disabled} disabled` : ''}`}
+            disabled={submitDisabled}
+            type="submit"
+          >
+            Log In
+          </button>
+          <p>
+            Don't have an account? <Link to="/signup">Sign up</Link>
+          </p>
+        </div>
       </form>
     </div>
   );
