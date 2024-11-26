@@ -10,7 +10,7 @@ import {
 const router = Router();
 
 router.get('/', preventAuthenticatedAccess, mainController.getHomePage);
-router.get('/feed', checkAuthenticated, mainController.getFeedPage);
+router.get('/feed', mainController.getFeedPage);
 
 router.use('/users', userRoutes);
 router.use('/books', bookRoutes);

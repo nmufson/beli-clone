@@ -1,6 +1,7 @@
 import * as bookServices from '../services/bookServices';
 import { PrismaClient, Prisma, BookStatus, UserReaction } from '@prisma/client';
 import { UserBook } from '../types';
+import e from 'express';
 
 export async function reorderBooks(
   userId: number,
@@ -38,7 +39,10 @@ export async function reorderBooks(
   // regardless of how many are in the other ranges
 }
 
-export async function calculateRatings(userId: number, newBookId: number) {
+export async function calculateRatings(
+  userId: number,
+  newBookId: number | null,
+) {
   const ranges: Record<UserReaction, [number, number]> = {
     DISLIKED: [0, 3.33],
     OKAY: [3.34, 6.66],
@@ -72,6 +76,12 @@ export async function calculateRatings(userId: number, newBookId: number) {
     )
   ).flat();
 
-  const updatedNewBook = allUpdatedBooks.find((book) => book?.id === newBookId);
-  return updatedNewBook;
+  if (newBookId) {
+    const updatedNewBook = allUpdatedBooks.find(
+      (book) => book?.id === newBookId,
+    );
+    return updatedNewBook;
+  } else {
+    return allUpdatedBooks;
+  }
 }

@@ -6,12 +6,14 @@ import Search from './pages/Search/Search';
 import LogIn from './pages/LogIn/LogIn';
 import SignUp from './pages/SignUp/SignUp';
 import Home from './pages/Home/Home';
+
 import { createBrowserRouter } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
+
     children: [
       {
         // should this depend on whether logged in or not?

@@ -4,6 +4,19 @@ import { UserBook, AddFinishedBookArgs, addBookToShelfArgs } from '../types';
 
 const prisma = new PrismaClient();
 
+export async function addBookSeed(
+  data: AddFinishedBookArgs,
+): Promise<Omit<UserBook, 'user'>> {
+  return await catchQuery(() =>
+    prisma.userBook.create({
+      data: {
+        ...data,
+        autoRating: null,
+      },
+    }),
+  );
+}
+
 export async function addFinishedBook(
   data: AddFinishedBookArgs,
 ): Promise<Omit<UserBook, 'user'>> {
@@ -50,6 +63,19 @@ export async function getAllBooksByReaction(
       where: {
         userId,
         userReaction,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    }),
+  );
+}
+
+export async function getAllBooksByUserId(userId: number | undefined) {
+  return await catchQuery(() =>
+    prisma.userBook.findMany({
+      where: {
+        userId,
       },
       orderBy: {
         order: 'asc',
@@ -112,15 +138,6 @@ export async function getBookDistribution(
   }
 
   return distributedBooks;
-}
-
-export async function updateBookRating(userBookId: number, autoRating: number) {
-  return await catchQuery(() =>
-    prisma.userBook.update({
-      where: { id: userBookId },
-      data: { autoRating },
-    }),
-  );
 }
 
 export async function updateBookRatings(

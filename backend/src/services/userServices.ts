@@ -1,6 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import catchQuery from '../utils/catchQuery';
-import { User, NewUser, UserWithoutRelations, UserMinimal } from '../types';
+import {
+  User,
+  NewUser,
+  UserWithoutRelations,
+  UserMinimal,
+  FooterInfo,
+} from '../types';
 import { selectFields } from 'express-validator/lib/field-selection';
 
 const prisma = new PrismaClient();
@@ -43,33 +49,46 @@ export const getUserById = async (
   );
 };
 
-export const getUserByEmailMinimal = async (
-  email: string,
-): Promise<Express.User | null> => {
+export const getUserWithFollowing = async (userId: number) => {
   return await catchQuery(() =>
     prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-      },
+      where: { id: userId },
+      include: { following: true },
     }),
   );
 };
 
-export const getUserByIdMinimal = async (
+export const updateUserProfile = async (
   id: number,
-): Promise<Express.User | null> => {
+  fieldsToUpdate: {
+    firstName?: string;
+    lastName?: string;
+    profilePictureUrl?: string;
+    bio?: string;
+  },
+) => {
+  const filteredFields = Object.fromEntries(
+    Object.entries(fieldsToUpdate).filter(([_, value]) => value !== undefined),
+  );
+
+  return await catchQuery(() =>
+    prisma.user.update({
+      where: { id },
+      data: filteredFields,
+    }),
+  );
+};
+
+export const getFooterInfo = async (
+  id: number | undefined,
+): Promise<FooterInfo | null> => {
   return await catchQuery(() =>
     prisma.user.findUnique({
       where: { id },
       select: {
-        id: true,
-        email: true,
         firstName: true,
         lastName: true,
+        profilePictureUrl: true,
       },
     }),
   );

@@ -1,4 +1,5 @@
 import * as bookServices from '../services/bookServices';
+import * as postServices from '../services/postServices';
 import { PrismaClient, Prisma, BookStatus, UserReaction } from '@prisma/client';
 import { reorderBooks, calculateRatings } from '../utils/calculateRating';
 import { Request, Response, NextFunction } from 'express';
@@ -55,9 +56,24 @@ export const addFinishedBook = async (
     addedBook.id,
   );
   if (comparableBooks.length === 0) {
+    const newPost = await postServices.newPost({
+      userId,
+      googleBooksId,
+      bookName: title,
+      bookAuthor: author,
+      bookImageUrl: imageUrl,
+      userRating: undefined,
+      userNote: userNote || null,
+      status: BookStatus.FINISHED,
+      createdAt: undefined,
+      updatedAt: undefined,
+      userBookId: addedBook.id,
+    });
+
     res.status(201).json({
       message: 'Successfully added first book in range ',
       addedBook,
+      newPost,
     });
     return;
   }
@@ -100,8 +116,16 @@ export const addBookToShelf = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { userId, googleBooksId, title, author, genre, imageUrl, status } =
-    req.body;
+  const {
+    userId,
+    googleBooksId,
+    title,
+    author,
+    genre,
+    imageUrl,
+    status,
+    makePost,
+  } = req.body;
 
   const addedBook = await bookServices.addBookToShelf({
     userId,
@@ -118,9 +142,49 @@ export const addBookToShelf = async (
     return;
   }
 
-  res.status(201).json({
-    message: 'Book successfully added to shelf',
-    addedBook,
+  let newPost = null;
+  if (makePost) {
+    const newPost = await postServices.newPost({
+      userId,
+      googleBooksId,
+      bookName: title,
+      bookAuthor: author,
+      bookImageUrl: imageUrl,
+      userRating: undefined,
+      userNote: undefined,
+      status,
+      createdAt: undefined,
+      updatedAt: undefined,
+      userBookId: addedBook.id,
+    });
+
+    if (!newPost) {
+      res.status(500).json({ message: 'Post could not be made' });
+      return;
+    }
+
+    res.status(201).json({
+      message: 'Book successfully added to shelf',
+      addedBook,
+      newPost,
+    });
+  }
+};
+
+export const getAllUserBooks = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const userId = req.user?.id;
+
+  const userBooks = await bookServices.getAllBooksByUserId(userId);
+
+  if (!userBooks) {
+    res.status(500).json({ message: 'Books could not be retrieved' });
+  }
+
+  res.status(200).json({
+    message: 'Books retrieved successfully',
+    userBooks,
   });
-  return;
 };

@@ -5,12 +5,7 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { Strategy as LocalStrategy } from 'passport-local';
-import {
-  getUserByEmail,
-  getUserByEmailMinimal,
-  getUserById,
-  getUserByIdMinimal,
-} from './services/userServices';
+import { getUserByEmail } from './services/userServices';
 import router from './routes/router';
 
 dotenv.config();
@@ -31,6 +26,12 @@ app.use(
     secret: process.env.SESSION_SECRET || 'default_secret',
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
+      secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Adjust for CSRF prevention
+      maxAge: 1000 * 60 * 60 * 24, // Optional: 1 day expiration for the session cookie
+    },
   }),
 );
 
@@ -60,6 +61,7 @@ passport.use(
         if (!matchPassword) {
           return done(null, false, { message: 'Incorrect password' });
         }
+        //sets the user object in passport
         return done(null, user);
       } catch (error) {
         return done(error);
@@ -69,16 +71,19 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
+  // only storing user.id in session
   done(null, user.id);
 });
 
-passport.deserializeUser(async (id: number, done) => {
-  try {
-    const user = await getUserByIdMinimal(id);
-    done(null, user);
-  } catch (err) {
-    done(err);
-  }
+passport.deserializeUser((id: number, done) => {
+  // passport attaches id to req.user for subsequent requests
+  done(null, { id });
+});
+
+app.use((req, res, next) => {
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+  next();
 });
 
 app.use(router);

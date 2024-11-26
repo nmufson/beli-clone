@@ -2,13 +2,14 @@ import styles from './SignUp.module.css';
 import LabelInput from '../../components/LabelInput/LabelInput';
 import DOMPurify from 'dompurify';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { SignUpFormData, SignUpFormErrors } from '../../types';
 import { signUpUser } from '../../services/signUpService';
 import { validateField } from './SignUpValidation';
 
 const SignUp = () => {
   // modulate this to custom hook?
+
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const [formData, setFormData] = useState<SignUpFormData>({
     email: '',
@@ -61,8 +62,10 @@ const SignUp = () => {
     e.preventDefault();
     try {
       const newUser = await signUpUser(formData);
-      window.location.href = '/feed';
-      // redirect to feed, window location
+      console.log(newUser);
+      setAuthorizedUser(newUser);
+
+      // window.location.href = '/feed';
     } catch (error) {
       console.log(error);
     }

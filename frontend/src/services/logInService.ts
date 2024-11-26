@@ -10,10 +10,9 @@ export const logInUser = async (formData: FormData, setFormErrors) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(formData),
+    credentials: 'include',
   });
 
-  const data = await response.json();
-  console.log(data);
   if (!response.ok) {
     if (data.message.includes('password')) {
       setFormErrors((prev) => ({
@@ -28,13 +27,18 @@ export const logInUser = async (formData: FormData, setFormErrors) => {
     }
   }
 
-  return data;
+  const data = await response.json();
+  console.log(data);
+  const user = data.user;
+
+  return user;
 };
 
 export const logOutUser = async () => {
   const response = await fetch(`${API_URL}/users/logout`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
   });
 
   const data = await response.json();

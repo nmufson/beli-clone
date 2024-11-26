@@ -30,7 +30,8 @@ export const signUpUser = async (formData: SignUpFormData) => {
     throw new Error(errorData.message || 'Failed to sign up user ');
   }
 
-  const newUser = await response.json();
+  const data = await response.json();
+  const newUser = data.user;
 
   return newUser;
 };

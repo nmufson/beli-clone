@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
 import * as userServices from '../services/userServices';
+
 import { Request, Response, NextFunction } from 'express';
 import { NewUser, User, AuthInfo } from '../types';
 
@@ -16,10 +17,74 @@ export async function checkEmail(req: Request, res: Response): Promise<void> {
   return;
 }
 
-export function checkAuthStatus(req: Request, res: Response) {
-  res.status(200).json({ user: req.user });
-  return;
+export async function getFooterInfo(req: Request, res: Response) {
+  const userId = req.user?.id;
+
+  const footerInfo = await userServices.getFooterInfo(userId);
+
+  if (!footerInfo) {
+    res.status(404).send('Failed to fetch footer info');
+    return;
+  }
+
+  const userFooterInfo = {
+    firstNameInitial: footerInfo?.firstName[0],
+    lastNameInitial: footerInfo?.lastName[0],
+    imageURL: footerInfo?.profilePictureUrl,
+  };
+
+  res.status(200).json({
+    message: 'Footer info retrieved successfully',
+    userFooterInfo,
+  });
 }
+
+export const getUserProfile = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const userId = req.user?.id;
+
+  let user;
+  if (userId) {
+    user = await userServices.getUserById(userId);
+  }
+
+  if (!user) {
+    res.status(500).json({ message: 'Failed to retrieve user' });
+  }
+
+  res.status(200).json({ message: 'User retrieved successfully', user });
+};
+
+export const updateUserProfile = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const userId = req.user?.id;
+
+  const { firstName, lastName, imageUrl, bio } = req.body;
+
+  let updatedUser;
+  if (userId) {
+    updatedUser = await userServices.updateUserProfile(userId, {
+      firstName,
+      lastName,
+      profilePictureUrl: imageUrl,
+      bio,
+    });
+  }
+
+  if (!updatedUser) {
+    res.status(400).json({ message: 'Failed to update user' });
+    return;
+  }
+
+  res.status(200).json({
+    message: 'User profile updated successfully',
+    updatedUser,
+  });
+};
 
 export async function signUpUser(
   req: Request,
@@ -89,7 +154,8 @@ export async function logInUser(
         if (err) {
           return next(err);
         }
-        return res.status(201).json({
+        console.log('Logged in user:', user);
+        return res.status(200).json({
           message: 'User logged in successfully',
           user: {
             id: user.id,

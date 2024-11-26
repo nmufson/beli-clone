@@ -80,6 +80,19 @@ export interface AddFinishedBookArgs {
   status: BookStatus;
 }
 
+export interface AddBookSeed {
+  userId: number;
+  googleBooksId: string;
+  title: string;
+  author: string;
+  genre: string;
+  imageUrl: string | null;
+  userNote: string | null;
+  order: number;
+  userReaction: UserReaction | null;
+  status: BookStatus;
+}
+
 export interface UserBook {
   id: number;
   userId: number;
@@ -162,15 +175,32 @@ export interface AuthInfo {
   // [key: string]: any;
 }
 
+export interface FooterInfo {
+  firstName: string;
+  lastName: string;
+  profilePictureUrl: string | null;
+}
+
 //
 
 declare global {
   namespace Express {
     interface User {
       id: number;
-      email: string;
-      firstName: string;
-      lastName: string;
     }
   }
+}
+
+export interface NewPostArgs {
+  userId: number;
+  googleBooksId: string;
+  bookName: string;
+  bookAuthor: string;
+  bookImageUrl: string;
+  userRating: number | undefined;
+  userNote: string | undefined;
+  status: BookStatus;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  userBookId: number;
 }

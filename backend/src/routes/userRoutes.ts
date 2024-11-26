@@ -16,7 +16,8 @@ router.post(
   userController.logInUser,
 );
 
-router.get('/auth/status', checkAuthenticated, userController.checkAuthStatus);
+
+router.get('/footer-info', checkAuthenticated, userController.getFooterInfo);
 
 router.post('/check-email', userController.checkEmail);
 

@@ -55,7 +55,8 @@ const LogIn = () => {
     try {
       const user = await logInUser(formData, setFormErrors);
       console.log(user);
-      // window.location.href = '/feed';
+
+      window.location.href = '/feed';
     } catch (error) {
       console.log(error);
     }
