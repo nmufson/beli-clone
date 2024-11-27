@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, BookStatus, UserReaction } from '@prisma/client';
+import { PrismaClient, UserReaction } from '@prisma/client';
 import catchQuery from '../utils/catchQuery';
 import { UserBook, AddFinishedBookArgs, addBookToShelfArgs } from '../types';
 

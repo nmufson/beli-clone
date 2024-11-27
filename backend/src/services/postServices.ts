@@ -72,7 +72,7 @@ export async function likeComment(userId: number, commentId: number) {
   });
 }
 
-export async function commentOnPost(
+export async function newComment(
   userId: number,
   postId: number,
   content: string,
@@ -87,26 +87,3 @@ export async function commentOnPost(
     });
   });
 }
-
-// model Like {
-//   id         Int       @id @default(autoincrement())
-//   postId     Int?
-//   commentId  Int?
-//   userId     Int
-
-//   post       Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
-//   comment    Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
-//   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-// }
-
-// model Comment {
-//   id         Int      @id @default(autoincrement())
-//   postId     Int
-//   userId     Int
-//   content    String
-//   createdAt  DateTime @default(now())
-
-//   likes      Like[]
-//   post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-//   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-// }

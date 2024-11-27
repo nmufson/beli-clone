@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, FollowRequestStatus } from '@prisma/client';
+
 import catchQuery from '../utils/catchQuery';
 import {
   User,
@@ -6,6 +7,7 @@ import {
   UserWithoutRelations,
   UserMinimal,
   FooterInfo,
+  FollowRequest,
 } from '../types';
 import { selectFields } from 'express-validator/lib/field-selection';
 
@@ -49,13 +51,40 @@ export const getUserById = async (
   );
 };
 
-export const getUserWithFollowing = async (userId: number) => {
-  return await catchQuery(() =>
+export const getUsersUserFollowing = async (
+  userId: number,
+): Promise<
+  | {
+      id: number;
+      firstName: string;
+      lastName: string;
+      profilePictureUrl: string | null;
+    }[]
+  | null
+> => {
+  const result = await catchQuery(() =>
     prisma.user.findUnique({
       where: { id: userId },
-      include: { following: true },
+      include: {
+        following: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                profilePictureUrl: true,
+              },
+            },
+          },
+        },
+      },
     }),
   );
+
+  if (!result) return null;
+
+  return result.following.map((following) => following.user);
 };
 
 export const updateUserProfile = async (
@@ -89,6 +118,66 @@ export const getFooterInfo = async (
         firstName: true,
         lastName: true,
         profilePictureUrl: true,
+      },
+    }),
+  );
+};
+
+export const newFollowRequest = async (data: {
+  senderId: number;
+  receiverId: number;
+}) => {
+  return await catchQuery(() =>
+    prisma.followRequest.create({
+      data: {
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+        status: 'PENDING',
+      },
+    }),
+  );
+};
+
+export const affectFollowRequest = async (
+  senderId: number,
+  receiverId: number,
+  status: FollowRequestStatus,
+) => {
+  return await catchQuery(() =>
+    prisma.followRequest.update({
+      where: {
+        senderId_receiverId: {
+          senderId,
+          receiverId,
+        },
+      },
+      data: { status },
+    }),
+  );
+};
+
+export const deleteFollowRequest = async (
+  senderId: number,
+  receiverId: number,
+) => {
+  return await catchQuery(() =>
+    prisma.followRequest.delete({
+      where: {
+        senderId_receiverId: {
+          senderId,
+          receiverId,
+        },
+      },
+    }),
+  );
+};
+
+export const addUserFollower = async (senderId: number, receiverId: number) => {
+  return await catchQuery(() =>
+    prisma.userFollower.create({
+      data: {
+        userId: receiverId,
+        followerId: senderId,
       },
     }),
   );

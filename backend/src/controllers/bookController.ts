@@ -1,6 +1,6 @@
 import * as bookServices from '../services/bookServices';
 import * as postServices from '../services/postServices';
-import { PrismaClient, Prisma, BookStatus, UserReaction } from '@prisma/client';
+import { BookStatus } from '@prisma/client';
 import { reorderBooks, calculateRatings } from '../utils/calculateRating';
 import { Request, Response, NextFunction } from 'express';
 
@@ -86,7 +86,11 @@ export const addFinishedBook = async (
   return;
 };
 
-export async function processComparisonResults(req: Request, res: Response) {
+export const processComparisonResults = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const { userId, newBookId, reaction, pairwiseResults } = req.body;
   // add validation
 
@@ -96,21 +100,24 @@ export async function processComparisonResults(req: Request, res: Response) {
     const updatedNewBook = calculateRatings(userId, newBookId);
 
     if (!updatedNewBook) {
-      return res
+      res
         .status(500)
         .json({ message: 'Book not found or could not be updated' });
+      return;
     }
 
-    return res.status(201).json({
+    res.status(201).json({
       message: 'New book updated with rating',
       updatedNewBook,
     });
+    return;
   }
-  return res.status(201).json({
+  res.status(201).json({
     message: 'Books reordered successfully',
     updatedBooks,
   });
-}
+  return;
+};
 
 export const addBookToShelf = async (
   req: Request,
@@ -142,9 +149,9 @@ export const addBookToShelf = async (
     return;
   }
 
-  let newPost = null;
+  let newPost;
   if (makePost) {
-    const newPost = await postServices.newPost({
+    newPost = await postServices.newPost({
       userId,
       googleBooksId,
       bookName: title,

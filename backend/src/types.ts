@@ -1,4 +1,10 @@
-import { PrismaClient, Prisma, BookStatus, UserReaction } from '@prisma/client';
+import {
+  PrismaClient,
+  Prisma,
+  BookStatus,
+  UserReaction,
+  followRequestStatus,
+} from '@prisma/client';
 const prisma = new PrismaClient();
 
 // type BookStatus = Prisma.$Enums.BookStatus;

@@ -26,6 +26,12 @@ enum BookStatus {
   FINISHED
 }
 
+enum FollowRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 
 model User {
   id                Int              @id @default(autoincrement())
@@ -60,7 +66,7 @@ model FollowRequest {
   id         Int      @id @default(autoincrement())
   senderId   Int
   receiverId Int
-  status     String   // "pending", "accepted", "rejected"
+  status     FollowRequestStatus @default(PENDING)
   createdAt  DateTime @default(now())
 
   sender     User     @relation("sentRequests", fields: [senderId], references: [id], onDelete: Cascade)
@@ -121,6 +127,8 @@ model Like {
   post       Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
   comment    Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, commentId, userId]) 
 }
 
 model Comment {
