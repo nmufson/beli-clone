@@ -27,6 +27,7 @@ body {
   font-family: Roboto, sans-serif;
   background-color: var(--white);
   color: var(--charcoal);
+  font-size: 14px;
 }
 
 input {
@@ -36,6 +37,10 @@ input {
 
 input::placeholder {
   color: var(--medium-gray);
+}
+
+main {
+  padding: 0 1rem;
 }
 
 header,
@@ -60,4 +65,16 @@ button.disabled {
   opacity: 0.6;
   pointer-events: none;
   background-color: red;
+}
+
+@media (min-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 18px;
+  }
 }

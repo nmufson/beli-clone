@@ -81,8 +81,6 @@ passport.deserializeUser((id: number, done) => {
 });
 
 app.use((req, res, next) => {
-  console.log('Session:', req.session);
-  console.log('User:', req.user);
   next();
 });
 

@@ -1,4 +1,4 @@
-import { PrismaClient, FollowRequestStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 import catchQuery from '../utils/catchQuery';
 import {
@@ -47,6 +47,26 @@ export const getUserById = async (
   return await catchQuery(() =>
     prisma.user.findUnique({
       where: { id },
+    }),
+  );
+};
+
+export const getUserProfile = async (id: number) => {
+  return await catchQuery(() =>
+    prisma.user.findUnique({
+      where: { id },
+      select: {
+        firstName: true,
+        lastName: true,
+        bio: true,
+        profilePictureUrl: true,
+        createdAt: true,
+        books: true,
+        posts: true,
+        followers: true,
+        following: true,
+        followRequestsReceived: true,
+      },
     }),
   );
 };
@@ -132,26 +152,7 @@ export const newFollowRequest = async (data: {
       data: {
         senderId: data.senderId,
         receiverId: data.receiverId,
-        status: 'PENDING',
       },
-    }),
-  );
-};
-
-export const affectFollowRequest = async (
-  senderId: number,
-  receiverId: number,
-  status: FollowRequestStatus,
-) => {
-  return await catchQuery(() =>
-    prisma.followRequest.update({
-      where: {
-        senderId_receiverId: {
-          senderId,
-          receiverId,
-        },
-      },
-      data: { status },
     }),
   );
 };

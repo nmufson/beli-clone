@@ -63,9 +63,8 @@ const SignUp = () => {
     try {
       const newUser = await signUpUser(formData);
       console.log(newUser);
-      setAuthorizedUser(newUser);
 
-      // window.location.href = '/feed';
+      window.location.href = '/feed/user';
     } catch (error) {
       console.log(error);
     }

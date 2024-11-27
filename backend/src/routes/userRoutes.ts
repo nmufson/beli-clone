@@ -20,9 +20,9 @@ router.post(
 router.post('/logout', checkAuthenticated, userController.logOutUser);
 
 router.get('/footer-info', checkAuthenticated, userController.getFooterInfo);
-router.get('/user/:userId', userController.getUserProfile);
+router.get('/user/:userIdParam', userController.getUserProfile);
 router.post(
-  '/user/:userId',
+  '/user/:userIdParam',
   checkAuthenticated,
   userController.updateUserProfile,
 );

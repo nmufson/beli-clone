@@ -38,7 +38,9 @@ export const getUserFeedPosts = async (
   res.status(200).json({ message: 'Posts retrieved successfully', posts });
 };
 
-// users can view post if there are comments on it
+// users can only view post if there are comments on it
+// will prevent users from clicking on frontend
+// redirect from backend if they somehow access
 export const getPost = async (req: Request, res: Response): Promise<void> => {
   const { postIdParam } = req.params;
   const postId = parseInt(postIdParam);

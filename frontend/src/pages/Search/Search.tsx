@@ -1,25 +1,53 @@
 import { searchBook } from '../../services/googleBookService';
 import SearchItem from '../../components/SearchItem/SearchItem';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './Search.module.css';
+import { useParams } from 'react-router-dom';
 
 const Search = () => {
   const [searchItems, setSearchItems] = useState([]);
+  const [query, setQuery] = useState('');
+  const { authorSlug } = useParams();
 
-  // perhaps only bring a few fields here and then later fetch the whole
-  // thing on the book specific page
+  useEffect(() => {
+    const fetchSlugBooks = async () => {
+      if (authorSlug) {
+        setQuery(authorSlug);
+        try {
+          const books = await searchBook(authorSlug);
+
+          setSearchItems(books);
+        } catch (error) {
+          console.error('Error fetching books:', error.message);
+        }
+      }
+    };
+    fetchSlugBooks();
+  }, [authorSlug]);
+
   const onChange = async (e) => {
-    try {
-      const books = await searchBook(e.target.value);
-
-      setSearchItems(books);
-    } catch (error) {
-      console.error('Error fetching books:', error.message);
+    const value = e.target.value;
+    setQuery(value);
+    if (value.trim() !== '') {
+      try {
+        const books = await searchBook(value);
+        setSearchItems(books);
+      } catch (error) {
+        console.error('Error fetching books:', error.message);
+      }
+    } else {
+      setSearchItems([]);
     }
   };
+
   return (
     <div>
-      <input type="text" onChange={onChange} />
+      <input
+        type="text"
+        value={query}
+        onChange={onChange}
+        placeholder="Search for books..."
+      />
       <div className={styles.resultsContainer}>
         {searchItems.length > 0 &&
           searchItems

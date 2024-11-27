@@ -141,20 +141,37 @@ export const getUserProfile = async (
   const { userIdParam } = req.params;
   const userId = parseInt(userIdParam);
 
-  if (sessionUserId !== userId) return;
-  // make this validation better
-  // can only update the user if the session user is the same
-
   let user;
   if (userId) {
-    user = await userServices.getUserById(userId);
+    user = await userServices.getUserProfile(userId);
   }
 
   if (!user) {
     res.status(500).json({ message: 'Failed to retrieve user' });
   }
 
-  res.status(200).json({ message: 'User retrieved successfully', user });
+  console.log(user);
+
+  let following = false;
+  let followRequestSent = false;
+
+  if (req.user) {
+    following =
+      user?.followers.some((pair) => pair.followerId === req.user?.id) || false;
+    followRequestSent =
+      user?.followRequestsReceived.some(
+        (pair) => pair.senderId === req.user?.id,
+      ) || false;
+  }
+
+  res.status(200).json({
+    message: 'User retrieved successfully',
+    user,
+    isLoggedIn: Boolean(req.user),
+    isOwner: sessionUserId === userId,
+    following,
+    followRequestSent,
+  });
 };
 
 export const updateUserProfile = async (
@@ -220,7 +237,7 @@ export const affectFollowRequest = async (
   res: Response,
 ): Promise<void> => {
   const sessionUserId = req.user?.id;
-  const { senderId, receiverId, status } = req.body;
+  const { senderId, receiverId, accepted } = req.body;
 
   if (receiverId !== sessionUserId) {
     res
@@ -238,7 +255,7 @@ export const affectFollowRequest = async (
     res.status(500).json({ message: 'Failed to delete follow request' });
     return;
   }
-  if (status === 'ACCEPTED') {
+  if (accepted === true) {
     const newFollower = await userServices.addUserFollower(
       senderId,
       receiverId,
@@ -254,13 +271,13 @@ export const affectFollowRequest = async (
       message: 'Follow request accepted successfully',
       newFollower,
     });
-  } else if (status === 'REJECTED') {
+  } else if (accepted === false) {
     res.status(200).json({
       message: 'Follow request rejected successfully',
     });
   } else {
     res.status(400).json({
-      message: 'Invalid status. Status must be "ACCEPTED" or "REJECTED".',
+      message: 'Invalid accepted status. Accepted must be a boolean.',
     });
   }
 };
@@ -284,7 +301,7 @@ export const cancelFollowRequest = async (
     receiverId,
   );
 
-  if (!cancelFollowRequest) {
+  if (!deletedFollowRequest) {
     res.status(500).json({ message: 'Failed to cancel follow request' });
     return;
   } else {

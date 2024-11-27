@@ -23,18 +23,6 @@ export async function getAllPosts() {
   });
 }
 
-export async function getPostById(postId: number) {
-  return await catchQuery(async () => {
-    return await prisma.post.findUnique({
-      where: { id: postId },
-      include: {
-        likes: true,
-        comments: true,
-      },
-    });
-  });
-}
-
 export const getPostsByUserIds = async (userIds: number[]) => {
   return await prisma.post.findMany({
     where: {
@@ -49,6 +37,18 @@ export const getPostsByUserIds = async (userIds: number[]) => {
     },
   });
 };
+
+export async function getPostById(postId: number) {
+  return await catchQuery(async () => {
+    return await prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        likes: true,
+        comments: true,
+      },
+    });
+  });
+}
 
 export async function likePost(userId: number, postId: number) {
   return await catchQuery(async () => {

@@ -6,6 +6,7 @@ import Search from './pages/Search/Search';
 import LogIn from './pages/LogIn/LogIn';
 import SignUp from './pages/SignUp/SignUp';
 import Home from './pages/Home/Home';
+import UserProfile from './pages/UserProfile/UserProfile';
 
 import { createBrowserRouter } from 'react-router-dom';
 
@@ -16,21 +17,29 @@ const router = createBrowserRouter([
 
     children: [
       {
-        // should this depend on whether logged in or not?
+        // have backend redirect to /feed if logged in
         index: true,
+        element: <Home />,
+      },
+      {
+        path: 'home/',
+        element: <Home />,
+      },
+      {
+        path: 'feed/:type',
         element: <Feed />,
       },
       {
-        path: 'feed/',
-        element: <Feed />,
-      },
-      {
-        path: 'search/',
+        path: 'search/:authorSlug',
         element: <Search />,
       },
       {
-        path: 'book/:bookId/:slug',
+        path: 'book/:bookIdParam/:slug',
         element: <Book />,
+      },
+      {
+        path: 'user/:userIdParam/:slug',
+        element: <UserProfile />,
       },
       {
         path: 'login/',
@@ -39,10 +48,6 @@ const router = createBrowserRouter([
       {
         path: 'signup/',
         element: <SignUp />,
-      },
-      {
-        path: 'home/',
-        element: <Home />,
       },
     ],
   },

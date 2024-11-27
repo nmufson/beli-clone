@@ -7,12 +7,12 @@ const router = Router();
 
 router.get('/post/:postId', postController.getPost);
 
-router.post('/post/:postId', postController.likePost);
+router.post('/post/:postIdParam', postController.likePost);
 router.post(
-  '/comment/:commentId',
+  '/comment/:commentIdParam',
 
   postController.likeComment,
 );
-router.post('/post/:postId/comment', postController.commentOnPost);
+router.post('/post/:postIdParam/comment', postController.commentOnPost);
 
 export default router;

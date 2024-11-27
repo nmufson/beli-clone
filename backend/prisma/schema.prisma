@@ -26,12 +26,6 @@ enum BookStatus {
   FINISHED
 }
 
-enum FollowRequestStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-}
-
 
 model User {
   id                Int              @id @default(autoincrement())
@@ -44,7 +38,6 @@ model User {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   books             UserBook[]
-  posts             Post[]
   followers         UserFollower[]   @relation("userFollowers")
   following         UserFollower[]   @relation("userFollowing")
   followRequestsSent    FollowRequest[] @relation("sentRequests")
@@ -66,7 +59,6 @@ model FollowRequest {
   id         Int      @id @default(autoincrement())
   senderId   Int
   receiverId Int
-  status     FollowRequestStatus @default(PENDING)
   createdAt  DateTime @default(now())
 
   sender     User     @relation("sentRequests", fields: [senderId], references: [id], onDelete: Cascade)
@@ -76,69 +68,52 @@ model FollowRequest {
 }
 
 model UserBook {
-  id              Int      @id @default(autoincrement())
-  userId          Int
-  googleBooksId   String 
-  title           String
-  author          String
-  genre           String
-  imageUrl        String?
-  userReaction    UserReaction?
-  order           Int?
-  autoRating      Int?      
-  userNote        String?
-  status          BookStatus
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                     Int       @id @default(autoincrement())
+  userId                 Int
+  googleBooksId          String
+  title                  String
+  author                 String
+  genre                  String
+  imageUrl               String?
+  userReaction           UserReaction?
+  order                  Int?
+  autoRating             Int?
+  userNote               String?
+  status                 BookStatus
+  hasPost                Boolean   @default(false)
+  createdAt              DateTime  @default(now())
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  posts           Post[] 
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  likes                  Like[]
+  comments               Comment[]
 }
 
 
 
-model Post {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  googleBooksId String
-  bookName      String
-  bookAuthor    String
-  bookImageUrl  String
-  userRating    Int?    
-  userNote      String?
-  status        BookStatus
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userBookId     Int       
-  userBook       UserBook  @relation(fields: [userBookId], references: [id], onDelete: Cascade)
-
-  likes      Like[]
-  comments   Comment[]
-}
 
 model Like {
   id         Int       @id @default(autoincrement())
-  postId     Int?      
+  userBookId Int?      
   commentId  Int?     
-  userId     Int       
+  userId     Int  
 
-  post       Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userBook   UserBook?     @relation(fields: [userBookId], references: [id], onDelete: Cascade)
   comment    Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([postId, commentId, userId]) 
+  @@unique([userBookId, commentId, userId]) 
 }
 
 model Comment {
   id         Int      @id @default(autoincrement())
-  postId     Int
+  userBookId Int
   userId     Int
   content    String
   createdAt  DateTime @default(now())
 
   likes      Like[]
-  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userBook   UserBook     @relation(fields: [userBookId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

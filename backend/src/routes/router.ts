@@ -12,8 +12,12 @@ import {
 const router = Router();
 
 router.get('/', preventAuthenticatedAccess, mainController.getHomePage);
-router.get('/guest-feed', postController.getAllPosts);
-router.get('/user-feed', checkAuthenticated, postController.getUserFeedPosts);
+router.get(
+  '/feed/guest',
+  preventAuthenticatedAccess,
+  postController.getAllPosts,
+);
+router.get('/feed/user', checkAuthenticated, postController.getUserFeedPosts);
 router.use('/users', userRoutes);
 router.use('/books', bookRoutes);
 router.use('/posts', postRoutes);

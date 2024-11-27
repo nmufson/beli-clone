@@ -1,0 +1,66 @@
+.postPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-bottom: 1px solid var(--charcoal);
+  padding: 0 0 0.5rem 0;
+}
+
+.top {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.titleContainer {
+  max-width: 14rem;
+}
+
+.postPreview a {
+  font-weight: 700;
+}
+
+.postPreview a:hover {
+  text-decoration: underline;
+}
+
+.profileImage {
+  height: 3rem;
+  width: 3rem;
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.titleContainer .authorLink {
+  font-weight: 400;
+  color: var(--medium-gray);
+}
+
+.ratingContainer {
+  min-width: 3rem;
+}
+
+.noteContainer {
+  padding: 0 0 0 0.3rem;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.likeCommentContainer {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.buttonContainer svg {
+  height: 2rem;
+  width: 2rem;
+}
