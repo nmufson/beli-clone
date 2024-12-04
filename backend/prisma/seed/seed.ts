@@ -7,7 +7,6 @@ async function main() {
   await prisma.userFollower.deleteMany({});
   await prisma.followRequest.deleteMany({});
   await prisma.userBook.deleteMany({});
-  await prisma.post.deleteMany({});
   await prisma.comment.deleteMany({});
   await prisma.like.deleteMany({});
 
@@ -310,12 +309,23 @@ async function main() {
 
   const allUserBooks = await prisma.userBook.findMany();
 
-  const commentsData = allPosts.map((post, index) => ({
-    postId: post.id,
-    userId: allUsers[index % allUsers.length].id, // Cycle through users for comments
-    content: `This is a comment on the book "${post.bookName}" by ${post.bookAuthor}.`,
-    createdAt: new Date(),
-  }));
+  const commentsData = [
+    {
+      userBookId: allUserBooks[0].id,
+      userId: allUsers[0].id,
+      content: 'nice post!!',
+    },
+    {
+      userBookId: allUserBooks[0].id,
+      userId: allUsers[1].id,
+      content: 'will have to give this one another read',
+    },
+    {
+      userBookId: allUserBooks[0].id,
+      userId: allUsers[2].id,
+      content: 'nice post!!',
+    },
+  ];
 
   await prisma.comment.createMany({
     data: commentsData,
@@ -325,22 +335,33 @@ async function main() {
 
   const allComments = await prisma.comment.findMany();
 
-  const likesData = [];
-
-  if (allComments.length > 0) {
-    likesData.push({
-      commentId: allComments[0].id, // First comment gets a like
-      userId: allUsers[1 % allUsers.length].id, // Different user to ensure variety
-    });
-  }
-
-  allPosts.forEach((post, index) => {
-    likesData.push({
-      postId: post.id,
+  const likesData = [
+    {
+      userBookId: allUserBooks[0].id,
       commentId: undefined,
-      userId: allUsers[(index + 2) % allUsers.length].id,
-    });
-  });
+      userId: allUsers[0].id,
+    },
+    {
+      userBookId: allUserBooks[0].id,
+      commentId: undefined,
+      userId: allUsers[1].id,
+    },
+    {
+      userBookId: allUserBooks[0].id,
+      commentId: undefined,
+      userId: allUsers[2].id,
+    },
+    {
+      userBookId: undefined,
+      commentId: allComments[0].id,
+      userId: allUsers[1].id,
+    },
+    {
+      userBookId: undefined,
+      commentId: allComments[0].id,
+      userId: allUsers[2].id,
+    },
+  ];
 
   await prisma.like.createMany({
     data: likesData,

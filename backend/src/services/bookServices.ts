@@ -4,19 +4,6 @@ import { UserBook, AddFinishedBookArgs, addBookToShelfArgs } from '../types';
 
 const prisma = new PrismaClient();
 
-export async function addBookSeed(
-  data: AddFinishedBookArgs,
-): Promise<Omit<UserBook, 'user'>> {
-  return await catchQuery(() =>
-    prisma.userBook.create({
-      data: {
-        ...data,
-        autoRating: null,
-      },
-    }),
-  );
-}
-
 export async function addFinishedBook(
   data: AddFinishedBookArgs,
 ): Promise<Omit<UserBook, 'user'>> {
@@ -24,7 +11,6 @@ export async function addFinishedBook(
     prisma.userBook.create({
       data: {
         ...data,
-        autoRating: null,
       },
     }),
   );
@@ -38,6 +24,7 @@ export async function addBookToShelf({
   genre,
   imageUrl,
   status,
+  hasPost,
 }: addBookToShelfArgs): Promise<Omit<UserBook, 'user'>> {
   return await catchQuery(() =>
     prisma.userBook.create({
@@ -49,6 +36,7 @@ export async function addBookToShelf({
         genre,
         imageUrl,
         status,
+        hasPost,
       },
     }),
   );
@@ -71,19 +59,6 @@ export async function getAllBooksByReaction(
   );
 }
 
-export async function getAllBooksByUserId(userId: number | undefined) {
-  return await catchQuery(() =>
-    prisma.userBook.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        order: 'asc',
-      },
-    }),
-  );
-}
-
 export async function updateBookOrder(
   updatedBooks: { id: number; order: number }[],
 ) {
@@ -98,7 +73,7 @@ export async function updateBookOrder(
     ),
   );
 }
-// change this to make it by reaction
+
 // add catchQuery to this
 export async function getBookDistribution(
   userId: number,
@@ -153,4 +128,194 @@ export async function updateBookRatings(
       ),
     ),
   );
+}
+
+export async function getAllUserBooksByUserId(userId: number | undefined) {
+  return await catchQuery(() =>
+    prisma.userBook.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    }),
+  );
+}
+
+export async function getAllBooksWithUserPreviews() {
+  return await catchQuery(() =>
+    prisma.userBook.findMany({
+      include: {
+        likes: true,
+        comments: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePictureUrl: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    }),
+  );
+}
+
+export const getUserFeedBooksWithUserPreviews = async (
+  followingIds: number[],
+) => {
+  return await prisma.userBook.findMany({
+    where: {
+      userId: { in: followingIds },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      likes: true,
+      comments: true,
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePictureUrl: true,
+        },
+      },
+    },
+  });
+};
+
+export async function getUserBookById(postId: number) {
+  return await catchQuery(async () => {
+    return await prisma.userBook.findUnique({
+      where: { id: postId },
+      include: {
+        likes: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            profilePictureUrl: true,
+          },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profilePictureUrl: true,
+              },
+            },
+            likes: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+export async function likeUserBook(userId: number, userBookId: number) {
+  return await catchQuery(async () => {
+    return await prisma.like.create({
+      data: {
+        userId,
+        userBookId,
+      },
+    });
+  });
+}
+
+export async function deleteLike(likeId: number) {
+  return await catchQuery(async () => {
+    return await prisma.like.delete({
+      where: { id: likeId },
+    });
+  });
+}
+
+export async function likeComment(userId: number, commentId: number) {
+  return await catchQuery(async () => {
+    return await prisma.like.create({
+      data: {
+        userId,
+        commentId,
+      },
+    });
+  });
+}
+
+export async function newComment(
+  userId: number,
+  userBookId: number,
+  content: string,
+) {
+  return await catchQuery(async () => {
+    return await prisma.comment.create({
+      data: {
+        userId,
+        userBookId,
+        content,
+      },
+    });
+  });
+}
+
+export async function getBookLikes(userBookId: number) {
+  return await catchQuery(async () => {
+    return await prisma.like.findMany({
+      where: { userBookId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePictureUrl: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+export async function getCommentLikes(commentId: number) {
+  return await catchQuery(async () => {
+    return await prisma.like.findMany({
+      where: { commentId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePictureUrl: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+export async function getBookComments(userBookId: number) {
+  return await catchQuery(async () => {
+    return await prisma.comment.findMany({
+      where: { userBookId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePictureUrl: true,
+          },
+        },
+      },
+    });
+  });
 }

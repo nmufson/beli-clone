@@ -19,9 +19,7 @@ export interface User {
   bio: string | null;
   profilePictureUrl: string | null;
   createdAt: Date;
-  updatedAt: Date;
   books: UserBook[];
-  posts: Post[];
   followers: UserFollower[];
   following: UserFollower[];
   followRequestsSent: FollowRequest[];
@@ -33,7 +31,6 @@ export interface User {
 export type UserWithoutRelations = Omit<
   User,
   | 'books'
-  | 'posts'
   | 'followers'
   | 'following'
   | 'followRequestsSent'
@@ -113,7 +110,6 @@ export interface UserBook {
   userNote: string | null;
   status: BookStatus;
   createdAt: Date;
-  updatedAt: Date | null;
   user: User;
 }
 
@@ -125,12 +121,12 @@ export interface addBookToShelfArgs {
   genre: string;
   imageUrl: string;
   status: BookStatus;
+  hasPost: boolean;
 }
 
 export type UserBookWithoutRelations = Omit<
   UserBook,
   | 'books'
-  | 'posts'
   | 'followers'
   | 'following'
   | 'followRequestsSent'
@@ -140,27 +136,12 @@ export type UserBookWithoutRelations = Omit<
   | 'comments'
 >;
 
-export interface Post {
-  id: number;
-  userId: number;
-  googleBooksId: string;
-  bookName: string;
-  bookAuthor: string;
-  userRating: number;
-  userNote: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  user: User;
-  likes: Like[];
-  comments: Comment[];
-}
-
 export interface Like {
   id: number;
   postId: number | null;
   commentId: number | null;
   userId: number;
-  post: Post | null;
+  userBook: UserBook | null;
   comment: Comment | null;
   user: User;
 }
@@ -172,7 +153,7 @@ export interface Comment {
   content: string;
   createdAt: Date;
   likes: Like[];
-  post: Post;
+  userBook: UserBook;
   user: User;
 }
 
@@ -195,18 +176,4 @@ declare global {
       id: number;
     }
   }
-}
-
-export interface NewPostArgs {
-  userId: number;
-  googleBooksId: string;
-  bookName: string;
-  bookAuthor: string;
-  bookImageUrl: string;
-  userRating: number | undefined;
-  userNote: string | undefined;
-  status: BookStatus;
-  createdAt: Date | undefined;
-  updatedAt: Date | undefined;
-  userBookId: number;
 }

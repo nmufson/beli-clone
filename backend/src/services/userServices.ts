@@ -26,6 +26,8 @@ export async function newUser({
         password: hashedPassword,
         firstName,
         lastName,
+        profilePictureUrl:
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-DSW54utMSZ6J1F9luVr6YYDoRZ-FQYCL3w&s',
       },
     }),
   );
@@ -51,6 +53,22 @@ export const getUserById = async (
   );
 };
 
+// export const getUserPreviews = async (ids: number[]) => {
+//   return await catchQuery(() =>
+//     prisma.user.findMany({
+//       where: {
+//         id: { in: ids },
+//       },
+//       select: {
+//         id: true,
+//         firstName: true,
+//         lastName: true,
+//         profilePictureUrl: true,
+//       },
+//     }),
+//   );
+// };
+
 export const getUserProfile = async (id: number) => {
   return await catchQuery(() =>
     prisma.user.findUnique({
@@ -62,7 +80,6 @@ export const getUserProfile = async (id: number) => {
         profilePictureUrl: true,
         createdAt: true,
         books: true,
-        posts: true,
         followers: true,
         following: true,
         followRequestsReceived: true,

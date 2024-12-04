@@ -20,6 +20,7 @@ router.post(
 router.post('/logout', checkAuthenticated, userController.logOutUser);
 
 router.get('/footer-info', checkAuthenticated, userController.getFooterInfo);
+
 router.get('/user/:userIdParam', userController.getUserProfile);
 router.post(
   '/user/:userIdParam',

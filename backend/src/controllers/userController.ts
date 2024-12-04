@@ -150,8 +150,6 @@ export const getUserProfile = async (
     res.status(500).json({ message: 'Failed to retrieve user' });
   }
 
-  console.log(user);
-
   let following = false;
   let followRequestSent = false;
 

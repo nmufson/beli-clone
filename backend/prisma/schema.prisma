@@ -34,9 +34,8 @@ model User {
   firstName         String
   lastName          String
   bio               String?
-  profilePictureUrl String?
+  profilePictureUrl String
   createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
   books             UserBook[]
   followers         UserFollower[]   @relation("userFollowers")
   following         UserFollower[]   @relation("userFollowing")
@@ -80,7 +79,7 @@ model UserBook {
   autoRating             Int?
   userNote               String?
   status                 BookStatus
-  hasPost                Boolean   @default(false)
+  hasPost                Boolean   @default(true)
   createdAt              DateTime  @default(now())
 
   user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -90,14 +89,12 @@ model UserBook {
 }
 
 
-
-
-
 model Like {
   id         Int       @id @default(autoincrement())
   userBookId Int?      
   commentId  Int?     
   userId     Int  
+  
 
   userBook   UserBook?     @relation(fields: [userBookId], references: [id], onDelete: Cascade)
   comment    Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
@@ -110,6 +107,8 @@ model Comment {
   id         Int      @id @default(autoincrement())
   userBookId Int
   userId     Int
+ 
+
   content    String
   createdAt  DateTime @default(now())
 
