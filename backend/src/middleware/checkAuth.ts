@@ -19,5 +19,6 @@ export function preventAuthenticatedAccess(
   if (req.isAuthenticated()) {
     return res.redirect('/feed/user');
   }
+  console.log('not authed');
   next();
 }

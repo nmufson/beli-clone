@@ -27,10 +27,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
-      secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Adjust for CSRF prevention
-      maxAge: 1000 * 60 * 60 * 24, // Optional: 1 day expiration for the session cookie
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      maxAge: 1000 * 60 * 60 * 24,
     },
   }),
 );

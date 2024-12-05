@@ -63,6 +63,10 @@ export async function signUpUser(
   });
 }
 
+export function getLogInPage(req: Request, res: Response) {
+  res.status(200).json({ message: 'Successfully retrieved log in page' });
+}
+
 export async function logInUser(
   req: Request,
   res: Response,

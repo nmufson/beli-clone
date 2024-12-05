@@ -11,6 +11,7 @@ import {
 const router = Router();
 
 router.get('/', preventAuthenticatedAccess, mainController.getHomePage);
+router.get('/auth/check', mainController.checkAuth);
 router.get(
   '/feed/guest',
   preventAuthenticatedAccess,

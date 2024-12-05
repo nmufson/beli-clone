@@ -171,7 +171,7 @@ export const getGuestFeedUserBooks = async (
   }
 
   res.status(200).json({
-    message: 'User books retrieved successfully',
+    message: 'Guest feed user books retrieved successfully',
     userBooks,
     isLoggedIn: false,
   });
@@ -209,7 +209,7 @@ export const getUserFeedUserBooks = async (
   });
 
   res.status(200).json({
-    message: 'User books retrieved successfully',
+    message: 'User feed user books retrieved successfully',
     userBooks: userBooksWithLikeInfo,
     isLoggedIn: true,
   });
@@ -235,7 +235,22 @@ export const getUserBook = async (
   const userLike = userBook?.likes.find((like) => like.userId === req.user?.id);
   const userLikeId = userLike ? userLike.id : null;
 
-  const userBookWithLikeInfo = { ...userBook, userLikeId };
+  const commentsWithLikeInfo = userBook?.comments.map((comment) => {
+    const userCommentLike = comment.likes.find(
+      (like) => like.userId === req.user?.id,
+    );
+    const userCommentLikeId = userCommentLike ? userCommentLike.id : null;
+    return {
+      ...comment,
+      userCommentLikeId,
+    };
+  });
+
+  const userBookWithLikeInfo = {
+    ...userBook,
+    userLikeId,
+    comments: commentsWithLikeInfo,
+  };
 
   res.status(200).json({
     message: 'User book retrieved successfully',
@@ -287,12 +302,15 @@ export const likeComment = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { userId } = req.body;
+  const userId = req.user?.id;
 
   const { commentIdParam } = req.params;
   const commentId = parseInt(commentIdParam);
 
-  const newLike = await bookServices.likeComment(userId, commentId);
+  let newLike;
+  if (userId) {
+    newLike = await bookServices.likeComment(userId, commentId);
+  }
 
   if (!newLike) {
     res.status(500).json({ message: 'Failed to add like to comment' });

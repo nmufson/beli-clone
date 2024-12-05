@@ -1,6 +1,9 @@
 import Router from 'express';
 import * as userController from '../controllers/userController';
-import { checkAuthenticated } from '../middleware/checkAuth';
+import {
+  checkAuthenticated,
+  preventAuthenticatedAccess,
+} from '../middleware/checkAuth';
 import { check } from 'prettier';
 
 const router = Router();
@@ -10,11 +13,14 @@ router.post('/check-email', userController.checkEmail);
 router.post(
   '/signup',
   // validation,
+  preventAuthenticatedAccess,
   userController.signUpUser,
 );
+router.get('/login', preventAuthenticatedAccess, userController.getLogInPage);
 router.post(
   '/login',
   // validation,
+  preventAuthenticatedAccess,
   userController.logInUser,
 );
 router.post('/logout', checkAuthenticated, userController.logOutUser);
