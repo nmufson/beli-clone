@@ -25,7 +25,7 @@ router.post(
 
   bookController.likeComment,
 );
-router.delete('/:likeIdParam', bookController.deleteLike);
+router.delete('/like/:likeIdParam', bookController.deleteLike);
 
 router.post('/:userBookIdParam/comment', bookController.commentOnPost);
 

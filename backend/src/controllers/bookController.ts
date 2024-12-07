@@ -106,16 +106,17 @@ export const addBookToShelf = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const {
-    userId,
-    googleBooksId,
-    title,
-    author,
-    genre,
-    imageUrl,
-    status,
-    hasPost,
-  } = req.body;
+  const { bookData } = req.body;
+
+  const { googleBooksId, title, author, genre, imageUrl, status, hasPost } =
+    bookData;
+
+  const userId = req.user?.id;
+
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
 
   const addedBook = await bookServices.addBookToShelf({
     userId,
