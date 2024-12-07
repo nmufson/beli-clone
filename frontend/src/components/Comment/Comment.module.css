@@ -1,0 +1,33 @@
+.comment {
+  display: flex;
+  gap: 1rem;
+}
+
+.comment img {
+  width: 2rem;
+  height: 2rem;
+}
+
+.comment svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.rightContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.userAndContent {
+  display: flex;
+  gap: 0.2rem;
+  max-width: 90%;
+  flex-direction: column;
+}
+
+.userAndContent strong {
+  text-wrap: nowrap;
+  margin-right: 0.3rem;
+}

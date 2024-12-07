@@ -8,7 +8,7 @@ const AddToListItem = ({ value, label, selectedOption, handleChange }) => {
         <input
           type="radio"
           value={value}
-          checked={selectedOption === 'option1'}
+          checked={selectedOption === value}
           onChange={handleChange}
         />
       </label>

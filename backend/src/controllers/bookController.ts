@@ -139,10 +139,57 @@ export const addBookToShelf = async (
   });
 };
 
+export const updateShelf = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { userBookIdParam } = req.params;
+  const userBookId = parseInt(userBookIdParam);
+
+  const { newStatus } = req.body;
+  console.log(newStatus);
+
+  if (!Object.values(BookStatus).includes(newStatus)) {
+    res.status(400).json({ message: 'Invalid book status' });
+    return;
+  }
+
+  const updatedUserBook = await bookServices.updateUserBook(userBookId, {
+    status: newStatus as BookStatus,
+  });
+
+  res.status(200).json({
+    message: 'Book status updated successfully',
+    updatedUserBook,
+  });
+};
+
+export const removeFromShelf = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { userBookIdParam } = req.params;
+  const userBookId = parseInt(userBookIdParam);
+
+  const removedBook = await bookServices.deleteUserBook(userBookId);
+
+  if (!removedBook) {
+    res.status(404).json({ message: 'Book not found' });
+    return;
+  }
+
+  res.status(200).json({
+    message: 'Book successfully removed from shelf',
+    removedBook,
+  });
+};
+
 export const getAllUserBooksByUser = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  // switch this back to req.user
+  //
   // const userId = req.user?.id;
 
   const { userIdParam } = req.params;
@@ -164,54 +211,71 @@ export const getGuestFeedUserBooks = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const userBooks = await bookServices.getAllBooksWithUserPreviews();
+  const feedBooks = await bookServices.getAllBooksWithUserPreviews();
 
-  if (!userBooks) {
+  if (!feedBooks) {
     res.status(500).json({ message: 'Failed to retrieve user books' });
   }
 
   res.status(200).json({
     message: 'Guest feed user books retrieved successfully',
-    userBooks,
-    isLoggedIn: false,
+    feedBooks,
   });
 };
 
+// perhaps do some of this processing and manipulation in one query??
 export const getUserFeedUserBooks = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   const userId = req.user?.id;
 
-  let userBooks;
-  if (userId) {
-    const following = await userServices.getUsersUserFollowing(userId);
-    const followingIds = following?.map((follow) => follow.id);
+  let feedBooks;
 
-    if (followingIds) {
-      userBooks =
-        await bookServices.getUserFeedBooksWithUserPreviews(followingIds);
-    }
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
   }
 
-  if (!userBooks) {
+  const following = await userServices.getUsersUserFollowing(userId);
+  const followingIds = following?.map((follow) => follow.id);
+
+  if (!followingIds || followingIds.length === 0) {
+    res.status(200).json({ message: 'No following users', feedBooks: [] });
+    return;
+  }
+
+  feedBooks = await bookServices.getUserFeedBooksWithUserPreviews(followingIds);
+
+  if (!feedBooks) {
     res.status(500).json({ message: 'Failed to retrieve user books' });
+    return;
   }
 
-  const userBooksWithLikeInfo = userBooks?.map((book) => {
-    const userLike = book.likes.find((like) => like.userId === req.user?.id);
-    const userLikeId = userLike ? userLike.id : null;
+  const loggedInUserBooks = await bookServices.getAllUserBooksByUserId(userId);
+
+  const loggedInUserBooksMap = new Map(
+    loggedInUserBooks.map((book) => [
+      book.googleBooksId,
+      { id: book.id, status: book.status },
+    ]),
+  );
+  const enhancedFeedBooks = feedBooks.map((book) => {
+    const userLike = book.likes.find((like) => like.userId === userId);
+
+    const commonBookInfo = loggedInUserBooksMap.get(book.googleBooksId) || null;
 
     return {
       ...book,
-      userLikeId,
+      userLikeId: userLike ? userLike.id : null,
+      loggedInUserBookStatus: commonBookInfo?.status || null,
+      loggedInUserBookId: commonBookInfo?.id || null,
     };
   });
 
   res.status(200).json({
     message: 'User feed user books retrieved successfully',
-    userBooks: userBooksWithLikeInfo,
-    isLoggedIn: true,
+    feedBooks: enhancedFeedBooks,
   });
 };
 
@@ -222,24 +286,33 @@ export const getUserBook = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  const userId = req.user?.id;
   const { userBookIdParam } = req.params;
   const userBookId = parseInt(userBookIdParam);
 
   const userBook = await bookServices.getUserBookById(userBookId);
 
-  console.log(userBook);
   if (!userBook) {
     res.status(500).json({ message: 'Failed to retrieve user book' });
+    return;
   }
 
   const userLike = userBook?.likes.find((like) => like.userId === req.user?.id);
   const userLikeId = userLike ? userLike.id : null;
 
-  const commentsWithLikeInfo = userBook?.comments.map((comment) => {
+  const loggedInUserBooks = await bookServices.getAllUserBooksByUserId(userId);
+  const commonBook = loggedInUserBooks.find(
+    (book) => book.googleBooksId === userBook.googleBooksId,
+  );
+  const loggedInUserBookStatus = commonBook?.status || null;
+  const loggedInUserBookId = commonBook?.id || null;
+
+  const commentsWithLikeInfo = userBook.comments.map((comment) => {
     const userCommentLike = comment.likes.find(
-      (like) => like.userId === req.user?.id,
+      (like) => like.userId === userId,
     );
     const userCommentLikeId = userCommentLike ? userCommentLike.id : null;
+
     return {
       ...comment,
       userCommentLikeId,
@@ -249,13 +322,14 @@ export const getUserBook = async (
   const userBookWithLikeInfo = {
     ...userBook,
     userLikeId,
+    loggedInUserBookStatus,
+    loggedInUserBookId,
     comments: commentsWithLikeInfo,
   };
 
   res.status(200).json({
     message: 'User book retrieved successfully',
     userBook: userBookWithLikeInfo,
-    isLoggedIn: Boolean(req.user),
   });
 };
 
@@ -314,6 +388,7 @@ export const likeComment = async (
 
   if (!newLike) {
     res.status(500).json({ message: 'Failed to add like to comment' });
+    return;
   }
 
   res
@@ -325,15 +400,20 @@ export const commentOnPost = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { userId, content } = req.body;
+  const userId = req.user?.id;
+  const { content } = req.body;
 
   const { userBookIdParam } = req.params;
   const userBookId = parseInt(userBookIdParam);
 
-  const newComment = await bookServices.newComment(userId, userBookId, content);
+  let newComment;
+  if (userId) {
+    newComment = await bookServices.newComment(userId, userBookId, content);
+  }
 
   if (!newComment) {
     res.status(500).json({ message: 'Failed to comment on user book' });
+    return;
   }
 
   res
@@ -352,6 +432,7 @@ export const getUserBookLikes = async (
 
   if (!userBookLikes) {
     res.status(500).json({ message: 'Failed to retrieve user book likes' });
+    return;
   }
 
   res
@@ -370,6 +451,7 @@ export const getUserBookComments = async (
 
   if (!comments) {
     res.status(500).json({ message: 'Failed to retrieve commnents' });
+    return;
   }
 
   res
@@ -388,6 +470,7 @@ export const getCommentLikes = async (
 
   if (!commentLikes) {
     res.status(500).json({ message: 'Failed to retrieve comment likes' });
+    return;
   }
 
   res

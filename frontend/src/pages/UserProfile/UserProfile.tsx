@@ -4,8 +4,8 @@ import { fetchUserProfile } from '../../services/userService';
 import { useEffect, useState } from 'react';
 import PostPreview from '../../components/PostPreview/PostPreview';
 
-// make it so the query only fetches necessary info
 // needs to include userBooks
+// and posts
 // have controller check if we follow them or not, and send that info for rendering
 // make a date formatter
 // type this

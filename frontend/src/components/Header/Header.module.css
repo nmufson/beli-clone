@@ -5,6 +5,15 @@
   padding: 0.5rem;
 }
 
+.topContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.logOut {
+  width: 4rem;
+}
+
 .searchButton {
   background-color: var(--soft-gray);
   color: var(--medium-gray);

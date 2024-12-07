@@ -28,10 +28,10 @@ export async function reorderBooks(
 
   const updatedBooks = booksByReaction.map((book, index) => ({
     id: book.id,
-    order: index + 1,
+    data: { order: index + 1 },
   }));
 
-  const updatedRecords = await bookServices.updateBookOrder(updatedBooks);
+  const updatedRecords = await bookServices.updateUserBooks(updatedBooks);
 
   return updatedRecords;
 
@@ -58,13 +58,15 @@ export async function calculateRatings(
 
     const updatedBooks = books.map((book, index) => ({
       ...book,
-      autoRating:
-        // distribute the books within the range rather than pushing them to the boundaries
-        // avoids making one book 6.67 and the other 10, or 0 / 3.33, etc
-        range[0] + ((index + 1) / (books.length + 1)) * (range[1] - range[0]),
+      data: {
+        autoRating:
+          // distribute the books within the range rather than pushing them to the boundaries
+          // avoids making one book 6.67 and the other 10, or 0 / 3.33, etc
+          range[0] + ((index + 1) / (books.length + 1)) * (range[1] - range[0]),
+      },
     }));
 
-    await bookServices.updateBookRatings(updatedBooks);
+    await bookServices.updateUserBooks(updatedBooks);
     return updatedBooks;
   };
 

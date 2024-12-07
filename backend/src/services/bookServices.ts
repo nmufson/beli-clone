@@ -1,4 +1,4 @@
-import { PrismaClient, UserReaction } from '@prisma/client';
+import { BookStatus, PrismaClient, UserReaction } from '@prisma/client';
 import catchQuery from '../utils/catchQuery';
 import { UserBook, AddFinishedBookArgs, addBookToShelfArgs } from '../types';
 
@@ -59,18 +59,38 @@ export async function getAllBooksByReaction(
   );
 }
 
-export async function updateBookOrder(
-  updatedBooks: { id: number; order: number }[],
+export async function updateUserBooks(
+  updatedBooks: { id: number; data: Partial<Omit<UserBook, 'user'>> }[],
 ) {
   return await Promise.all(
     updatedBooks.map((book) =>
       catchQuery(() =>
         prisma.userBook.update({
           where: { id: book.id },
-          data: { order: book.order },
+          data: book.data,
         }),
       ),
     ),
+  );
+}
+
+export async function updateUserBook(
+  userBookId: number,
+  data: Partial<Omit<UserBook, 'user'>>,
+) {
+  return await catchQuery(() =>
+    prisma.userBook.update({
+      where: { id: userBookId },
+      data,
+    }),
+  );
+}
+
+export async function deleteUserBook(userBookId: number) {
+  return await catchQuery(() =>
+    prisma.userBook.delete({
+      where: { id: userBookId },
+    }),
   );
 }
 
@@ -113,21 +133,6 @@ export async function getBookDistribution(
   }
 
   return distributedBooks;
-}
-
-export async function updateBookRatings(
-  updatedBooks: Omit<UserBook, 'user'>[],
-) {
-  return await Promise.all(
-    updatedBooks.map((book) =>
-      catchQuery(() =>
-        prisma.userBook.update({
-          where: { id: book.id },
-          data: { autoRating: book.autoRating },
-        }),
-      ),
-    ),
-  );
 }
 
 export async function getAllUserBooksByUserId(userId: number | undefined) {
@@ -261,6 +266,16 @@ export async function newComment(
         userId,
         userBookId,
         content,
+      },
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            profilePictureUrl: true,
+          },
+        },
+        likes: true,
       },
     });
   });

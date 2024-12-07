@@ -1,0 +1,27 @@
+.post {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.topContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.commentForm {
+  margin-bottom: 0.5rem;
+}
+
+.writeComment {
+  padding: 0.3rem;
+}

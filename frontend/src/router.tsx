@@ -1,8 +1,8 @@
-import BookIcon from './components/icons/BookIcon';
 import Book from './pages/Book/Book';
 import Layout from './components/Layout/Layout';
 import Feed from './pages/Feed/Feed';
 import Search from './pages/Search/Search';
+import Post from './pages/Post/Post';
 import LogIn from './pages/LogIn/LogIn';
 import SignUp from './pages/SignUp/SignUp';
 import Home from './pages/Home/Home';
@@ -34,8 +34,12 @@ const router = createBrowserRouter([
         element: <Search />,
       },
       {
-        path: 'book/:bookIdParam/:slug',
+        path: 'book/:googleBooksId/:slug',
         element: <Book />,
+      },
+      {
+        path: 'post/:userBookId',
+        element: <Post />,
       },
       {
         path: 'user/:userIdParam/:slug',

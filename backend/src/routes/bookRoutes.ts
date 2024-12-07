@@ -33,4 +33,7 @@ router.get('/:userBookIdParam/likes', bookController.getUserBookLikes);
 router.get('/:userBookIdParam/comments', bookController.getUserBookComments);
 router.get('/comments/:commentIdParam/likes', bookController.getCommentLikes);
 
+router.put('/:userBookIdParam', bookController.updateShelf);
+router.delete('/:userBookIdParam', bookController.removeFromShelf);
+
 export default router;

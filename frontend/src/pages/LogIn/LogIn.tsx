@@ -1,10 +1,12 @@
 import styles from './LogIn.module.css';
 import LabelInput from '../../components/LabelInput/LabelInput';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { logInUser } from '../../services/logInService';
 import { Link } from 'react-router-dom';
 import { validateLogin } from './LogInValidation';
+import useAuth from '../../hooks/useAuth';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 
 const LogIn = () => {
   const [submitDisabled, setSubmitDisabled] = useState(true);
@@ -13,6 +15,15 @@ const LogIn = () => {
     email: '',
     password: '',
   });
+  const { isAuthenticated, loading } = useOutletContext();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/feed/user');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -62,48 +73,55 @@ const LogIn = () => {
     }
   };
 
-  return (
-    <div>
-      <h1>Welcome back!</h1>
-      <small>Sign in below.</small>
+  //make this a component
+  if (loading) {
+    return <div>loading...</div>;
+  }
 
-      <form onSubmit={handleSubmit}>
-        <LabelInput
-          label="Email"
-          name="email"
-          value={formData.email}
-          placeholder="Email"
-          type="email"
-          maxLength={40}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={formErrors.email}
-        />
-        <LabelInput
-          label="Password"
-          name="password"
-          value={formData.password}
-          placeholder="Password"
-          type="password"
-          maxLength={40}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={formErrors.password}
-        />
-        <div>
-          <button
-            className={`${submitDisabled ? `${styles.disabled} disabled` : ''}`}
-            disabled={submitDisabled}
-            type="submit"
-          >
-            Log In
-          </button>
-          <p>
-            Don't have an account? <Link to="/signup">Sign up</Link>
-          </p>
-        </div>
-      </form>
-    </div>
+  return (
+    !isAuthenticated && (
+      <div>
+        <h1>Welcome back!</h1>
+        <small>Sign in below.</small>
+
+        <form onSubmit={handleSubmit}>
+          <LabelInput
+            label="Email"
+            name="email"
+            value={formData.email}
+            placeholder="Email"
+            type="email"
+            maxLength={40}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={formErrors.email}
+          />
+          <LabelInput
+            label="Password"
+            name="password"
+            value={formData.password}
+            placeholder="Password"
+            type="password"
+            maxLength={40}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={formErrors.password}
+          />
+          <div>
+            <button
+              className={`${submitDisabled ? `${styles.disabled} disabled` : ''}`}
+              disabled={submitDisabled}
+              type="submit"
+            >
+              Log In
+            </button>
+            <p>
+              Don't have an account? <Link to="/signup">Sign up</Link>
+            </p>
+          </div>
+        </form>
+      </div>
+    )
   );
 };
 

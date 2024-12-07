@@ -203,6 +203,31 @@ async function main() {
       hasPost: true,
     },
     {
+      userId: allUsers[1].id,
+      googleBooksId: 'RyJtJZPX8jwC',
+      title: 'To Kill a Mockingbird',
+      author: 'Harper Lee',
+      genre: 'Fiction',
+      imageUrl:
+        'http://books.google.com/books/content?id=RyJtJZPX8jwC&printsec=frontcover&img=1&zoom=1&edge=curl&imgtk=AFLRE70LBoudYDLeNer1aDyMqdIZcBbRVuIzwFOBIBSOJWxQFZ38M2B2MsgJafe1BWATGxBT1Q3_qrJ8O3GGYzrmBam9RXQ64unBjjBB047ODUNAAX1AwxX9gT1hoe8wsbqa4WEu1tt9&source=gbs_api',
+      userReaction: UserReaction.LIKED,
+      order: 1,
+      status: BookStatus.FINISHED,
+      userNote: 'A timeless classic about justice and morality.',
+      hasPost: true,
+    },
+    {
+      userId: allUsers[1].id,
+      googleBooksId: 'FmyBAwAAQBAJ',
+      title: 'Sapiens: A Brief History of Humankind',
+      author: 'Yuval Noah Harari',
+      genre: 'Non-Fiction',
+      imageUrl:
+        'http://books.google.com/books/publisher/content?id=FmyBAwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&imgtk=AFLRE70ccqOyLu1uornkTSVdQhwIoL2f_K08B-kTWl2ZMqcgAk7fY8XwtEz5E6YtwbnpIWLE8rBymQZhdnTePO4aDpCd-RbL0oSJ6h9wDVl_ywm23tEWdq64kzQz-MfUlfE66ZibuqQd&source=gbs_api',
+      status: BookStatus.DID_NOT_FINISH,
+      hasPost: true,
+    },
+    {
       userId: allUsers[2].id,
       googleBooksId: 'EvqJCGeqKhsC',
       title: 'Pride and Prejudice',

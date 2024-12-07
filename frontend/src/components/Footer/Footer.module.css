@@ -5,6 +5,10 @@
   gap: 1.2rem;
   border-top: 1px solid var(--charcoal);
   padding: 0.3rem 0;
+  position: sticky;
+  bottom: 0vh;
+  z-index: 50;
+  background-color: var(--white);
 }
 
 .footer svg {

@@ -15,13 +15,13 @@ const Book = () => {
   const [book, setBook] = useState(location?.state?.book || null);
   const [showModal, setShowModal] = useState(false);
 
-  const { bookId } = useParams();
+  const { googleBooksId } = useParams();
 
   useEffect(() => {
-    if (!book && bookId) {
+    if (!book && googleBooksId) {
       const fetchBook = async () => {
         try {
-          const data = await fetchBookById(bookId);
+          const data = await fetchBookById(googleBooksId);
           setBook(data);
         } catch (error) {
           console.error('Failed to fetch book:', error);
@@ -29,7 +29,7 @@ const Book = () => {
       };
       fetchBook();
     }
-  }, [book, bookId]);
+  }, [book, googleBooksId]);
 
   const handleAddClick = () => {
     setShowModal(true);
