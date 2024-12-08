@@ -70,28 +70,12 @@ const Post = () => {
           {post && (
             <PostPreview
               key={post.id}
-              bookId={post.id}
-              googleBooksId={post.googleBooksId}
-              userId={post.userId}
-              userFirstName={post.user.firstName}
-              userLastName={post.user.lastName}
-              title={post.title}
-              author={post.author}
-              userProfilePicUrl={post.user.profilePictureUrl}
-              rating={post.autoRating}
-              note={post.userNote}
-              status={post.status}
-              createdAt={post.createdAt}
-              likes={post.likes}
-              comments={post.comments}
+              post={post}
               setModalLikes={setModalLikes}
               setNotificationInfo={setNotificationInfo}
-              onFeed={false}
-              userLikeId={post.userLikeId}
+              onFeed={true}
               isAuthenticated={isAuthenticated}
               setAddToListInfo={setAddToListInfo}
-              loggedInUserBookStatus={post.loggedInUserBookStatus}
-              loggedInUserBookId={post.loggedInUserBookId}
             />
           )}
           <div className={styles.comments}>
@@ -142,6 +126,7 @@ const Post = () => {
           loggedInUserBookId={post.loggedInUserBookId}
           setAddToListInfo={setAddToListInfo}
           onFeed={false}
+          selectedPost={post}
           setPost={setPost}
         />
       )}

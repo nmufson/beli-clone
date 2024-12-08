@@ -91,7 +91,7 @@ button.disabled {
 
 .modal {
   top: 50%;
-  width: clamp(250px, 50vw, 300px);
+  width: clamp(250px, 95vw, 350px);
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;

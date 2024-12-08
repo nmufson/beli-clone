@@ -69,7 +69,7 @@ export const likePostOrComment = async (isPost: boolean, id: number) => {
 };
 
 export const deleteLike = async (likeId: number) => {
-  const response = await fetch(`${API_URL}/books/${likeId}`, {
+  const response = await fetch(`${API_URL}/books/like/${likeId}`, {
     method: 'DELETE',
     credentials: 'include',
   });
@@ -125,6 +125,23 @@ export const removeBookFromShelf = async (userBookId: number) => {
   });
   if (!response.ok) {
     console.log('failed to remove book from shelf');
+  }
+
+  const data = response.json();
+  return data;
+};
+
+export const addBookToShelf = async (bookData, status) => {
+  const response = await fetch(`${API_URL}/books/shelve-book`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ bookData, status }),
+  });
+  if (!response.ok) {
+    console.log('failed to add book to shelf');
   }
 
   const data = response.json();

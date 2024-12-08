@@ -14,51 +14,34 @@ import { likePostOrComment } from '../../services/feedService';
 import useAuth from '../../hooks/useAuth';
 import CheckMarkIcon from '../icons/CheckMarkIcon';
 
-interface PostPreviewProps {
-  bookId: number;
-  googleBooksId: string;
-  userId: number;
-  userFirstName: string;
-  userLastName: string;
-  title: string;
-  author: string;
-  userProfilePicUrl: string | undefined;
-  rating: number | undefined;
-  note: string | undefined;
-  status: string;
-  createdAt: Date;
-  likes: Like[];
-  comments: Comment[];
-  // setLikeUserPreviews:
-
-  // setNotificationInfo
-  onFeed: boolean;
-}
+interface PostPreviewProps {}
 
 const PostPreview = ({
-  bookId,
-  googleBooksId,
-  userId,
-  userFirstName,
-  userLastName,
-  title,
-  author,
-  userProfilePicUrl,
-  rating,
-  note,
-  status,
-  createdAt,
-  likes,
-  comments,
+  post,
   setModalLikes,
   setNotificationInfo,
+  setSelectedPost = () => {},
   onFeed,
-  userLikeId,
   isAuthenticated,
   setAddToListInfo,
-  loggedInUserBookStatus,
-  loggedInUserBookId,
-}: PostPreviewProps) => {
+}) => {
+  const {
+    id,
+    googleBooksId,
+    userId,
+    user,
+    title,
+    author,
+    autoRating,
+    userNote,
+    status,
+    createdAt,
+    likes,
+    comments,
+    userLikeId,
+    loggedInUserBookStatus,
+    loggedInUserBookId,
+  } = post;
   const titleSlug = createSlug(title);
   const authorSlug = createSlug(author);
 
@@ -71,7 +54,7 @@ const PostPreview = ({
 
   const handleLikeInfoClick = async () => {
     try {
-      const data = await fetchLikes(bookId, true);
+      const data = await fetchLikes(id, true);
       const likes = data.userBookLikes;
       setModalLikes(likes);
     } catch (error) {
@@ -80,7 +63,7 @@ const PostPreview = ({
   };
 
   const handleCommentInfoClick = () => {
-    navigate(`/post/${bookId}`);
+    navigate(`/post/${id}`);
   };
 
   const handleLikeButtonClick = async () => {
@@ -96,7 +79,7 @@ const PostPreview = ({
     } else {
       try {
         if (!likeId) {
-          const data = await likePostOrComment(true, bookId);
+          const data = await likePostOrComment(true, id);
           console.log(data);
           setLikeId(data.newLike.id);
           setLikeCount((prev) => prev + 1);
@@ -114,28 +97,31 @@ const PostPreview = ({
   const handleListButtonClick = () => {
     setAddToListInfo({
       isOpen: true,
-      postId: bookId,
+      postId: id,
       loggedInUserBookStatus,
       loggedInUserBookId,
     });
+    if (onFeed) {
+      setSelectedPost(post);
+    }
   };
 
   return (
     <>
       <div className={styles.postPreview}>
         <div className={styles.top}>
-          <Link to={`/user/${userId}/${userFirstName}-${userLastName}`}>
+          <Link to={`/user/${userId}/${user.firstName}-${user.lastName}`}>
             <img
               className={styles.profileImage}
-              src={userProfilePicUrl}
-              alt={`${userFirstName} ${userLastName} profile picture`}
+              src={user.profilePictureUrl}
+              alt={`${user.firstName} ${user.lastName} profile picture`}
             />
           </Link>
 
           <div className={styles.titleContainer}>
             <p>
-              <Link to={`/user/${userId}/${userFirstName}-${userLastName}`}>
-                {userFirstName} {userLastName}{' '}
+              <Link to={`/user/${userId}/${user.firstName}-${user.lastName}`}>
+                {user.firstName} {user.lastName}{' '}
               </Link>
               {status === 'WANT_TO_READ'
                 ? 'wants to read'
@@ -151,16 +137,16 @@ const PostPreview = ({
               {author}
             </Link>
           </div>
-          {status === 'FINISHED' && rating && (
+          {status === 'FINISHED' && autoRating && (
             <div className={styles.ratingContainer}>
-              <p>{rating}</p>
+              <p>{autoRating}</p>
             </div>
           )}
         </div>
 
-        {note && (
+        {userNote && (
           <div className={styles.noteContainer}>
-            <strong>Note:</strong> <p>{note}</p>
+            <strong>Note:</strong> <p>{userNote}</p>
           </div>
         )}
 

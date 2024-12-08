@@ -15,6 +15,7 @@ import AddToList from '../../components/AddToList/AddToList';
 
 const Feed = () => {
   const [posts, setPosts] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [notificationInfo, setNotificationInfo] = useState({
     isVisible: false,
     content: null,
@@ -22,6 +23,10 @@ const Feed = () => {
   const [addToListInfo, setAddToListInfo] = useState({
     isOpen: false,
     postId: null,
+    title: null,
+    author: null,
+    genre: null,
+    imageUrl: null,
     loggedInUserBookId: null,
     loggedInUserBookStatus: null,
   });
@@ -67,28 +72,13 @@ const Feed = () => {
           {posts?.map((post) => (
             <PostPreview
               key={post.id}
-              bookId={post.id}
-              googleBooksId={post.googleBooksId}
-              userId={post.userId}
-              userFirstName={post.user.firstName}
-              userLastName={post.user.lastName}
-              title={post.title}
-              author={post.author}
-              userProfilePicUrl={post.user.profilePictureUrl}
-              rating={post.autoRating}
-              note={post.userNote}
-              status={post.status}
-              createdAt={post.createdAt}
-              likes={post.likes}
-              comments={post.comments}
+              post={post}
+              setSelectedPost={setSelectedPost}
               setModalLikes={setModalLikes}
               setNotificationInfo={setNotificationInfo}
               onFeed={true}
-              userLikeId={post.userLikeId}
               isAuthenticated={isAuthenticated}
               setAddToListInfo={setAddToListInfo}
-              loggedInUserBookStatus={post.loggedInUserBookStatus}
-              loggedInUserBookId={post.loggedInUserBookId}
             />
           ))}
         </div>
@@ -103,6 +93,9 @@ const Feed = () => {
           loggedInUserBookId={addToListInfo.loggedInUserBookId}
           setAddToListInfo={setAddToListInfo}
           postId={addToListInfo.postId}
+          onFeed={true}
+          selectedPost={selectedPost}
+          setSelectedPost={setSelectedPost}
           posts={posts}
           setPosts={setPosts}
         />
