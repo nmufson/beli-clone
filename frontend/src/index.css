@@ -98,6 +98,11 @@ button.disabled {
   padding: 1rem;
 }
 
+.modal svg {
+  width: 2rem;
+  height: 2rem;
+}
+
 .notification {
   top: 10%;
   width: clamp(250px, 50vw, 250px);

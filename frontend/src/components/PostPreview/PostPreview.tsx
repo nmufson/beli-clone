@@ -6,7 +6,7 @@ import CommentIcon from '../icons/CommentIcon';
 import PlusCircleOutlineIcon from '../icons/PlusCircleOutlineIcon';
 import { Like, Comment } from '../../types';
 import { useState } from 'react';
-import LikesModal from '../../components/LikesModal/LikesModal';
+
 import formatDate from '../../utils/formatDate';
 import { deleteLike, fetchLikes } from '../../services/feedService';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +18,7 @@ interface PostPreviewProps {}
 
 const PostPreview = ({
   post,
-  setModalLikes,
+  setModalLikes = () => {},
   setNotificationInfo,
   setSelectedPost = () => {},
   onFeed,
@@ -41,6 +41,7 @@ const PostPreview = ({
     userLikeId,
     loggedInUserBookStatus,
     loggedInUserBookId,
+    userReaction,
   } = post;
   const titleSlug = createSlug(title);
   const authorSlug = createSlug(author);
@@ -95,14 +96,25 @@ const PostPreview = ({
   };
 
   const handleListButtonClick = () => {
-    setAddToListInfo({
-      isOpen: true,
-      postId: id,
-      loggedInUserBookStatus,
-      loggedInUserBookId,
-    });
-    if (onFeed) {
-      setSelectedPost(post);
+    if (!isAuthenticated) {
+      setNotificationInfo({
+        isVisible: true,
+        content: 'Must be logged in to interact with posts',
+      });
+      setTimeout(
+        () => setNotificationInfo({ isVisible: false, content: null }),
+        2000,
+      );
+    } else {
+      setAddToListInfo({
+        isOpen: true,
+        postId: id,
+        loggedInUserBookStatus,
+        loggedInUserBookId,
+      });
+      if (onFeed) {
+        setSelectedPost(post);
+      }
     }
   };
 
@@ -138,8 +150,10 @@ const PostPreview = ({
             </Link>
           </div>
           {status === 'FINISHED' && autoRating && (
-            <div className={styles.ratingContainer}>
-              <p>{autoRating}</p>
+            <div
+              className={`${styles.ratingContainer} ${userReaction === 'LIKED' ? styles.liked : userReaction === 'OKAY' ? styles.okay : styles.disliked}`}
+            >
+              <p className={styles.rating}>{autoRating.toFixed(1)}</p>
             </div>
           )}
         </div>

@@ -44,4 +44,17 @@
 .header {
   display: flex;
   justify-content: center;
+  border-bottom: 1px solid var(--charcoal);
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.lists {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.bookListPreview {
+  display: flex;
+  justify-content: space-between;
 }

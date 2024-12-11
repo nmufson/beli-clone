@@ -32,6 +32,9 @@
   align-items: center;
   text-align: center;
   font-size: 0.9rem;
+  width: 72px;
+  font-size: 0.8rem;
+  gap: 0.3rem;
 }
 
 .buttonWrapper button {
@@ -45,4 +48,19 @@
   flex-direction: column;
   align-items: center;
   gap: 0.3rem;
+}
+
+.nextButton {
+  padding: 0.3rem;
+}
+
+.comparisonBooks {
+  display: flex;
+}
+
+.comparisonBooks button {
+  width: 5rem;
+  height: 5rem;
+  border: 1px solid black;
+  border-radius: 1rem;
 }

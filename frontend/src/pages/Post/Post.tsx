@@ -4,7 +4,7 @@ import { useParams, useOutletContext } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { fetchPost, postComment } from '../../services/feedService';
 import Comment from '../../components/Comment/Comment';
-import LikesModal from '../../components/LikesModal/LikesModal';
+import UserListModal from '../../components/UserListModal/UserListModal';
 import Notification from '../../components/Notifcation/Notification';
 import useAuth from '../../hooks/useAuth';
 import AddToList from '../../components/AddToList/AddToList';
@@ -116,7 +116,13 @@ const Post = () => {
         </form>
       </div>
 
-      {modalLikes && <LikesModal likes={modalLikes} setLikes={setModalLikes} />}
+      {modalLikes && (
+        <UserListModal
+          title="likes"
+          likes={modalLikes}
+          setLikes={setModalLikes}
+        />
+      )}
       {notificationInfo.isVisible && (
         <Notification content={notificationInfo.content} type="alert" />
       )}

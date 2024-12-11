@@ -29,7 +29,7 @@ const AddToList = ({
   const [selectedOption, setSelectedOption] = useState(
     loggedInUserBookStatus || 'NONE',
   );
-  const [rankBookOpen, setRankBookOpen] = useState(true);
+  const [rankBookOpen, setRankBookOpen] = useState(false);
 
   const handleChange = (event) => {
     setSelectedOption(event.target.value);
@@ -48,28 +48,36 @@ const AddToList = ({
 
   // make it so if findished, asks to rank the book
   const handleSave = async () => {
-    if (!loggedInUserBookId) {
-      try {
-        const newBook = await addBookToShelf(selectedPost, selectedOption);
-        console.log(newBook);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    if (loggedInUserBookId && loggedInUserBookStatus !== selectedOption) {
-      try {
-        if (selectedOption === 'NONE') {
-          await removeBookFromShelf(loggedInUserBookId);
-        } else {
-          const updatedBook = await updateShelf(
-            loggedInUserBookId,
-            selectedOption,
-          );
-          console.log(updatedBook);
+    if (selectedOption === 'FINISHED') {
+      console.log('yo');
+      setRankBookOpen(true);
+      // later we can either add new book or update from reading to finished
+    } else {
+      if (!loggedInUserBookId && selectedOption !== 'NONE') {
+        try {
+          const res = await addBookToShelf(selectedPost, selectedOption);
+          const { addedBook } = res;
+        } catch (error) {
+          console.log(error);
         }
-      } catch (error) {
-        console.log(error);
       }
+      if (loggedInUserBookId && loggedInUserBookStatus !== selectedOption) {
+        try {
+          if (selectedOption === 'NONE') {
+            await removeBookFromShelf(loggedInUserBookId);
+          } else {
+            const updatedBook = await updateShelf(
+              loggedInUserBookStatus,
+              loggedInUserBookId,
+              selectedOption,
+            );
+            console.log(updatedBook);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      handleCloseModal();
     }
     if (!onFeed) {
       setPost((prev) => ({
@@ -80,7 +88,6 @@ const AddToList = ({
           selectedOption === 'NONE' ? null : loggedInUserBookId,
       }));
     } else {
-      console.log(postId);
       setPosts((prev) =>
         prev.map((post) =>
           post.id === postId
@@ -95,7 +102,6 @@ const AddToList = ({
         ),
       );
     }
-    handleCloseModal();
   };
 
   return (
@@ -141,7 +147,14 @@ const AddToList = ({
           </div>
         </div>
       ) : (
-        <RankBook book={selectedPost} />
+        <RankBook
+          book={selectedPost}
+          setAddToListInfo={setAddToListInfo}
+          setPost={setPost}
+          setPosts={setPosts}
+          onFeed={onFeed}
+          postId={postId}
+        />
       )}
 
       <div className="backdrop" onClick={handleCloseModal}></div>

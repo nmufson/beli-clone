@@ -1,15 +1,10 @@
-.likesModal {
+.userListModal {
   display: flex;
   flex-direction: column;
 }
 
 .wrapper {
   align-self: end;
-}
-
-.likesModal svg {
-  width: 2rem;
-  height: 2rem;
 }
 
 .userPreviews {

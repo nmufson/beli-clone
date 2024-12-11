@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 import { fetchPosts } from '../../services/feedService';
 import PostPreview from '../../components/PostPreview/PostPreview';
-import LikesModal from '../../components/LikesModal/LikesModal';
+import UserListModal from '../../components/UserListModal/UserListModal';
 import Notification from '../../components/Notifcation/Notification';
 import useAuth from '../../hooks/useAuth';
 import AddToList from '../../components/AddToList/AddToList';
@@ -20,13 +20,10 @@ const Feed = () => {
     isVisible: false,
     content: null,
   });
+  // clean this up
   const [addToListInfo, setAddToListInfo] = useState({
     isOpen: false,
     postId: null,
-    title: null,
-    author: null,
-    genre: null,
-    imageUrl: null,
     loggedInUserBookId: null,
     loggedInUserBookStatus: null,
   });
@@ -83,7 +80,13 @@ const Feed = () => {
           ))}
         </div>
       </div>
-      {modalLikes && <LikesModal likes={modalLikes} setLikes={setModalLikes} />}
+      {modalLikes && (
+        <UserListModal
+          title="likes"
+          likes={modalLikes}
+          setLikes={setModalLikes}
+        />
+      )}
       {notificationInfo.isVisible && (
         <Notification content={notificationInfo.content} type="alert" />
       )}

@@ -101,14 +101,18 @@ export const postComment = async (
   return data;
 };
 
-export const updateShelf = async (userBookId: number, newStatus: string) => {
+export const updateShelf = async (
+  oldStatus: string,
+  userBookId: number,
+  newStatus: string,
+) => {
   const response = await fetch(`${API_URL}/books/${userBookId}`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ newStatus }),
+    body: JSON.stringify({ oldStatus, newStatus }),
   });
   if (!response.ok) {
     console.log('failed to update shelf');

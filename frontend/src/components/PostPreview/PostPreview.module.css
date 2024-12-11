@@ -13,7 +13,7 @@
 }
 
 .titleContainer {
-  max-width: 14rem;
+  max-width: 10rem;
 }
 
 .postPreview a {
@@ -41,7 +41,31 @@
 }
 
 .ratingContainer {
-  min-width: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--charcoal);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ratingContainer.liked {
+  border-color: green;
+  color: green;
+  background-color: lightgreen;
+}
+
+.ratingContainer.okay {
+  border-color: yellow;
+  color: yellow;
+  background-color: lightyellow;
+}
+
+.ratingContainer.disliked {
+  border-color: red;
+  color: red;
+  background-color: pink;
 }
 
 .noteContainer {
