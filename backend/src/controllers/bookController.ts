@@ -9,17 +9,12 @@ export const addFinishedBook = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const {
-    userId,
-    googleBooksId,
-    title,
-    author,
-    genre,
-    imageUrl,
-    userNote,
-    userReaction,
-  } = req.body;
+  const userId = req.user?.id;
+  const { bookData, userNote, userReaction } = req.body;
 
+  const { googleBooksId, title, author, genre, imageUrl } = bookData;
+
+  console.log(userNote, userReaction);
   // update this
   if (
     !userId ||
@@ -47,6 +42,7 @@ export const addFinishedBook = async (
 
   const numBooks = 7;
 
+  console.log(userReaction);
   const comparableBooks = await bookServices.getBookDistribution(
     userId,
     userReaction,
@@ -74,13 +70,24 @@ export const processComparisonResults = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const { userId, newBookId, reaction, pairwiseResults } = req.body;
+  const userId = req.user?.id;
+  const { addedBookId, reaction, newOrderedBooks } = req.body;
   // add validation
 
-  const updatedBooks = await reorderBooks(userId, pairwiseResults, reaction);
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
+
+  const updatedBooks = await reorderBooks(
+    userId,
+    newOrderedBooks,
+    reaction,
+    addedBookId,
+  );
 
   if (updatedBooks.length > 4) {
-    const updatedNewBook = calculateRatings(userId, newBookId);
+    const updatedNewBook = calculateRatings(userId, addedBookId);
 
     if (!updatedNewBook) {
       res
@@ -106,11 +113,9 @@ export const addBookToShelf = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { bookData } = req.body;
+  const { bookData, status } = req.body;
 
-  const { googleBooksId, title, author, genre, imageUrl, status, hasPost } =
-    bookData;
-
+  const { googleBooksId, title, author, genre, imageUrl, hasPost } = bookData;
   const userId = req.user?.id;
 
   if (!userId) {
@@ -144,25 +149,72 @@ export const updateShelf = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
+
   const { userBookIdParam } = req.params;
   const userBookId = parseInt(userBookIdParam);
 
-  const { newStatus } = req.body;
+  // add reaction here
+  const { oldStatus, newStatus, userReaction } = req.body;
   console.log(newStatus);
 
   if (!Object.values(BookStatus).includes(newStatus)) {
     res.status(400).json({ message: 'Invalid book status' });
     return;
   }
+  let updatedUserBook;
 
-  const updatedUserBook = await bookServices.updateUserBook(userBookId, {
-    status: newStatus as BookStatus,
-  });
+  if (newStatus === 'FINISHED') {
+    updatedUserBook = await bookServices.updateUserBook(userBookId, {
+      status: newStatus as BookStatus,
+      userReaction,
+    });
 
-  res.status(200).json({
-    message: 'Book status updated successfully',
-    updatedUserBook,
-  });
+    const numBooks = 7;
+
+    const comparableBooks = await bookServices.getBookDistribution(
+      userId,
+      userReaction,
+      numBooks,
+      updatedUserBook.id,
+    );
+    if (comparableBooks.length === 0) {
+      res.status(201).json({
+        message: 'Successfully added first book in range ',
+        updatedUserBook,
+      });
+      return;
+    }
+
+    res.status(201).json({
+      message: 'Successfully fetched comparable books',
+      updatedUserBook,
+      comparableBooks,
+    });
+    return;
+  } else {
+    if (oldStatus === 'FINISHED') {
+      updatedUserBook = await bookServices.updateUserBook(userBookId, {
+        status: newStatus as BookStatus,
+        autoRating: null,
+        order: null,
+        userReaction: null,
+      });
+    } else {
+      updatedUserBook = await bookServices.updateUserBook(userBookId, {
+        status: newStatus as BookStatus,
+      });
+    }
+    res.status(200).json({
+      message: 'Book status updated successfully',
+      updatedUserBook,
+    });
+  }
 };
 
 export const removeFromShelf = async (

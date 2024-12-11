@@ -7,7 +7,7 @@ const router = Router();
 router.post('/shelve-book', checkAuthenticated, bookController.addBookToShelf);
 
 router.post(
-  'reorder-books',
+  '/reorder-books',
   checkAuthenticated,
   bookController.processComparisonResults,
 );

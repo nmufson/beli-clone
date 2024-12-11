@@ -5,28 +5,46 @@ import e from 'express';
 
 export async function reorderBooks(
   userId: number,
-  pairwiseResults: { winnerId: number; loserId: number }[],
+  newOrderedBooks: number[],
   reaction: UserReaction,
+  addedBookId: number,
 ) {
+  console.log('neworder', newOrderedBooks);
   const booksByReaction = await bookServices.getAllBooksByReaction(
     userId,
     reaction,
   );
 
-  pairwiseResults.forEach(({ winnerId, loserId }) => {
-    const winnerIndex = booksByReaction.findIndex(
-      (book: Omit<UserBook, 'user'>) => book.id === winnerId,
-    );
-    const loserIndex = booksByReaction.findIndex((book) => book.id === loserId);
+  const filteredBooks = booksByReaction.filter(
+    (book) => book.id !== addedBookId,
+  );
 
-    // figure out something more efficient (splice is not performant)
-    if (winnerIndex < loserIndex) {
-      const [winner] = booksByReaction.splice(winnerIndex, 1);
-      booksByReaction.splice(loserIndex, 0, winner);
-    }
-  });
+  const addedBookIndex = newOrderedBooks.findIndex((id) => id === addedBookId);
 
-  const updatedBooks = booksByReaction.map((book, index) => ({
+  let referenceIndex;
+  if (addedBookIndex - 1 >= 0) {
+    referenceIndex = addedBookIndex - 1;
+  } else {
+    referenceIndex = addedBookIndex + 1;
+  }
+
+  const referenceBookId = newOrderedBooks[referenceIndex];
+  const referenceBookIndex = filteredBooks.findIndex(
+    (book) => book.id === referenceBookId,
+  );
+
+  const insertionIndex =
+    addedBookIndex - 1 >= 0 ? referenceBookIndex + 1 : referenceBookIndex;
+
+  const bookToInsert = booksByReaction.find((book) => book.id === addedBookId);
+
+  if (!bookToInsert) {
+    throw new Error(`Book with ID ${addedBookId} not found in booksByReaction`);
+  }
+
+  filteredBooks.splice(insertionIndex, 0, bookToInsert);
+
+  const updatedBooks = filteredBooks.map((book, index) => ({
     id: book.id,
     data: { order: index + 1 },
   }));
