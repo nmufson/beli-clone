@@ -7,6 +7,7 @@ import LogIn from './pages/LogIn/LogIn';
 import SignUp from './pages/SignUp/SignUp';
 import Home from './pages/Home/Home';
 import UserProfile from './pages/UserProfile/UserProfile';
+import Lists from './pages/Lists/Lists';
 
 import { createBrowserRouter } from 'react-router-dom';
 
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: 'user/:userIdParam/:slug',
         element: <UserProfile />,
+      },
+      {
+        path: '/lists/user/:userIdParam',
+        element: <Lists />,
       },
       {
         path: 'login/',

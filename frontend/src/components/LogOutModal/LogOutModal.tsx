@@ -34,4 +34,27 @@ const LogOutModal = ({ setIsModalOpen }) => {
   );
 };
 
+const confirmModal = ({ setIsModalOpen, handleConfirm }) => {
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  return (
+    <>
+      <div className={`modal ${styles.logOutModal}`}>
+        <div className={styles.wrapper} onClick={handleCloseModal}>
+          <CloseIcon />
+        </div>
+        <h2>Log Out</h2>
+        <p>Are you sure you want to log out?</p>
+        <form onSubmit={handleConfirm}>
+          <button onClick={handleCloseModal}>Cancel</button>
+          <button type="submit">Log Out</button>
+        </form>
+      </div>
+      <div className="backdrop" onClick={handleCloseModal}></div>
+    </>
+  );
+};
+
 export default LogOutModal;

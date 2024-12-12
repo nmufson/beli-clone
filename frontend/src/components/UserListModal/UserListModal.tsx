@@ -28,6 +28,7 @@ const UserListModal = ({
           {(likes || users).map((item) => (
             <UserPreview
               key={item.id ? item.id : item.user.id}
+              userId={item.userId ? item.userId : item.id}
               userFirstName={
                 item.firstName ? item.firstName : item.user.firstName
               }
@@ -37,6 +38,7 @@ const UserListModal = ({
                   ? item.profilePictureUrl
                   : item.user.profilePictureUrl
               }
+              handleCloseModal={handleCloseModal}
             />
           ))}
         </div>

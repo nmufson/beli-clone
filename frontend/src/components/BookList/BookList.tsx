@@ -3,7 +3,7 @@ import CloseIcon from '../icons/CloseIcon';
 import createSlug from '../../utils/createSlug';
 import { Link } from 'react-router-dom';
 
-const bookList = ({ title, books, setBookListInfo }) => {
+const BookList = ({ title, books, setBookListInfo }) => {
   const handleCloseModal = () => {
     setBookListInfo({
       title: null,
@@ -44,4 +44,4 @@ const bookList = ({ title, books, setBookListInfo }) => {
   );
 };
 
-export default bookList;
+export default BookList;

@@ -54,3 +54,17 @@ export const sendComparisonResults = async (
   const data = response.json();
   return data;
 };
+
+export const fetchUserBookLists = async (userId: string) => {
+  const response = await fetch(`${API_URL}/books/user/${userId}/book-list`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    console.log('failed to get user book lists');
+  }
+
+  const data = response.json();
+  return data;
+};

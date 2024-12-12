@@ -6,11 +6,14 @@ import PostPreview from '../../components/PostPreview/PostPreview';
 import UserListModal from '../../components/UserListModal/UserListModal';
 import useAuth from '../../hooks/useAuth';
 import Notification from '../../components/Notifcation/Notification';
+import { unfollowUser } from '../../services/userService';
 import {
   sendFollowRequest,
   cancelFollowRequest,
 } from '../../services/userService';
+import { useNavigate } from 'react-router-dom';
 import BookList from '../../components/BookList/BookList';
+import ConfirmModal from '../../components/UnfollowModal/UnfollowModal';
 // needs to include userBooks
 // and posts
 // have controller check if we follow them or not, and send that info for rendering
@@ -23,17 +26,14 @@ import BookList from '../../components/BookList/BookList';
 // }
 
 const UserProfile = () => {
+  const navigate = useNavigate();
   const { userIdParam } = useParams();
   const [user, setUser] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
-  const [bookListInfo, setBookListInfo] = useState({
-    title: null,
-    books: [],
-  });
   const [otherInfo, setOtherInfo] = useState({
-    isOwner: null,
-    following: null,
-    followRequestSent: null,
+    isOwner: false,
+    following: false,
+    followRequestSent: false,
   });
   const [userListModal, setUserListModal] = useState({
     isOpen: false,
@@ -45,6 +45,15 @@ const UserProfile = () => {
     content: '',
   });
 
+  const [confirmModalInfo, setConfirmModalInfo] = useState({
+    isOpen: false,
+    title: '',
+    content: '',
+    cancelButtonContent: '',
+    confirmButtonContent: '',
+    onConfirm: null,
+  });
+
   const [selectedPost, setSelectedPost] = useState(null);
   const [addToListInfo, setAddToListInfo] = useState({
     isOpen: false,
@@ -53,24 +62,10 @@ const UserProfile = () => {
     loggedInUserBookStatus: null,
   });
 
-  const handleBookListPreviewClick = (e) => {
-    const { title, status } = e.currentTarget.dataset;
-    const bookList = user.books.filter((book) => book.status === status);
-    if (bookList.length === 0) {
-      setNotificationInfo({
-        isVisible: true,
-        content: `This list doesn't have any books yet`,
-      });
-      setTimeout(
-        () => setNotificationInfo({ isVisible: false, content: '' }),
-        2000,
-      );
-      return;
-    }
-    setBookListInfo({
-      title,
-      books: bookList,
-    });
+  const handleBookListClick = (e) => {
+    const { status } = e.currentTarget.dataset;
+
+    navigate(`/lists/user/${user.id}`, { state: { status } });
   };
 
   const { isAuthenticated, loading } = useAuth();
@@ -91,11 +86,23 @@ const UserProfile = () => {
       );
     } else {
       if (otherInfo.following) {
-        // confirm unfollow modal
+        setConfirmModalInfo({
+          isOpen: true,
+          title: 'Unfollow User',
+          content: `Are you sure you want to unfollow ${user.firstName} ${user.lastName}?`,
+          cancelButtonContent: 'Cancel',
+          confirmButtonContent: 'Unfollow',
+          onConfirm: handleConfirmUnfollowClick,
+        });
       } else if (otherInfo.followRequestSent) {
-        const res = await cancelFollowRequest(user.id);
-        setOtherInfo((prev) => ({ ...prev, followRequestSent: false }));
-        console.log(res);
+        setConfirmModalInfo({
+          isOpen: true,
+          title: 'Cancel Follow Request',
+          cancelButtonContent: 'Close',
+          content: `Are you sure you want to cancel your follow request?`,
+          confirmButtonContent: 'Cancel Request',
+          onConfirm: handleConfirmCancelFollowRequestClick,
+        });
       } else if (!otherInfo.following && !otherInfo.followRequestSent) {
         const res = await sendFollowRequest(user.id);
         setOtherInfo((prev) => ({ ...prev, followRequestSent: true }));
@@ -147,6 +154,32 @@ const UserProfile = () => {
       });
   };
 
+  const handleConfirmUnfollowClick = async () => {
+    try {
+      await unfollowUser(user.id);
+      setOtherInfo((prev) => ({
+        ...prev,
+        following: false,
+      }));
+      setConfirmModalInfo((prev) => ({ ...prev, isOpen: false }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleConfirmCancelFollowRequestClick = async () => {
+    try {
+      await cancelFollowRequest(user.id);
+      setOtherInfo((prev) => ({
+        ...prev,
+        followRequestSent: false,
+      }));
+      setConfirmModalInfo((prev) => ({ ...prev, isOpen: false }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     user && (
       <>
@@ -170,7 +203,6 @@ const UserProfile = () => {
             )}
           </div>
           <div className={styles.followerFollowing}>
-            {/* make these onClick to open modal of followers */}
             <div data-value="followers" onClick={handleFollowerFollowingClick}>
               <strong>{user.followers.length}</strong>
               <small>
@@ -185,13 +217,12 @@ const UserProfile = () => {
           </div>
           <div className={styles.lists}>
             {/* perhaps make these components */}
-            {/* these will link to a seperate lists page */}
 
             <div
               className={styles.bookListPreview}
               data-title="Read"
               data-status="FINISHED"
-              onClick={handleBookListPreviewClick}
+              onClick={handleBookListClick}
             >
               <p>Read</p>
               <p>
@@ -202,7 +233,7 @@ const UserProfile = () => {
               className={styles.bookListPreview}
               data-title="Want to Read"
               data-status="WANT_TO_READ"
-              onClick={handleBookListPreviewClick}
+              onClick={handleBookListClick}
             >
               <p>Want to Read</p>
               <p>
@@ -216,7 +247,7 @@ const UserProfile = () => {
               className={styles.bookListPreview}
               data-title="Currently Reading"
               data-status="CURRENTLY_READING"
-              onClick={handleBookListPreviewClick}
+              onClick={handleBookListClick}
             >
               <p>Currently Reading</p>
               <p>
@@ -231,7 +262,7 @@ const UserProfile = () => {
               className={styles.bookListPreview}
               data-title="Did Not Finish"
               data-status="DID_NOT_FINISH"
-              onClick={handleBookListPreviewClick}
+              onClick={handleBookListClick}
             >
               <p>Did Not Finish</p>
               <p>
@@ -272,11 +303,15 @@ const UserProfile = () => {
         {notificationInfo.isVisible && (
           <Notification content={notificationInfo.content} type="alert" />
         )}
-        {bookListInfo.books.length > 0 && (
-          <BookList
-            title={bookListInfo.title}
-            books={bookListInfo.books}
-            setBookListInfo={setBookListInfo}
+
+        {confirmModalInfo.isOpen && (
+          <ConfirmModal
+            setConfirmModalInfo={setConfirmModalInfo}
+            handleConfirm={confirmModalInfo.onConfirm}
+            title={confirmModalInfo.title}
+            content={confirmModalInfo.content}
+            cancelButtonContent={confirmModalInfo.cancelButtonContent}
+            confirmButtonContent={confirmModalInfo.confirmButtonContent}
           />
         )}
       </>

@@ -30,24 +30,34 @@ export const sendFollowRequest = async (receiverId: number) => {
   return data;
 };
 
-export const cancelFollowRequest = async (
-  senderId: number,
-  receiverId: number,
-) => {
+export const cancelFollowRequest = async (receiverId: number) => {
   const response = await fetch(`${API_URL}/users/follow-requests`, {
     method: 'DELETE',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ senderId, receiverId }),
+    body: JSON.stringify({ receiverId }),
   });
 
   if (!response.ok) {
     console.log('failed to cancel follow request');
   }
-  const data = response.json();
-  return data;
+};
+
+export const unfollowUser = async (userId: number) => {
+  const response = await fetch(`${API_URL}/users/followers`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userId }),
+  });
+
+  if (!response.ok) {
+    console.log('failed to unfollow user');
+  }
 };
 
 // router.post(

@@ -1,0 +1,28 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.statusContainer {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--charcoal);
+}
+
+.statusContainer button {
+  background-color: inherit;
+  border: none;
+  text-wrap: nowrap;
+}
+
+.statusContainer button.selected {
+  border-bottom: 2px solid var(--charcoal);
+}
+
+.bookList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

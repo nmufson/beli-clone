@@ -2,11 +2,12 @@ import styles from './Comment.module.css';
 import HeartIcon from '../icons/HeartIcon';
 import { useState } from 'react';
 import { fetchLikes } from '../../services/feedService';
-
 import { likePostOrComment, deleteLike } from '../../services/feedService';
+import { useNavigate } from 'react-router-dom';
 
 interface CommentProps {
   commentId: number;
+  userId: number;
   userFirstName: string;
   userLastName: string;
   userProfilePictureUrl: string;
@@ -17,6 +18,7 @@ interface CommentProps {
 
 const Comment = ({
   commentId,
+  userId,
   userFirstName,
   userLastName,
   userProfilePictureUrl,
@@ -27,6 +29,7 @@ const Comment = ({
   setNotificationInfo,
   isAuthenticated,
 }: CommentProps) => {
+  const navigate = useNavigate();
   const userFullName = userFirstName + ' ' + userLastName;
 
   const [likeCount, setLikeCount] = useState(commentLikes.length);
@@ -70,16 +73,21 @@ const Comment = ({
     }
   };
 
+  const handleUserClick = () => {
+    navigate(`/user/${userId}/${userFirstName}-${userLastName}`);
+  };
+
   return (
     <div className={styles.comment}>
       <img
         src={userProfilePictureUrl}
         alt={`${userFullName} profile picture`}
+        onClick={handleUserClick}
       />
       <div className={styles.rightContainer}>
         <div className={styles.userAndContent}>
           <p>
-            <strong>{userFullName}</strong>
+            <strong onClick={handleUserClick}>{userFullName}</strong>
             {content}
           </p>
           <small onClick={handleLikeInfoClick}>
