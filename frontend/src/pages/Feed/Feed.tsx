@@ -5,13 +5,15 @@ import {
   useSearchParams,
   useNavigate,
   useOutletContext,
+  Link,
 } from 'react-router-dom';
 import { fetchPosts } from '../../services/feedService';
 import PostPreview from '../../components/PostPreview/PostPreview';
 import UserListModal from '../../components/UserListModal/UserListModal';
-import Notification from '../../components/Notifcation/Notification';
+import Alert from '../../components/Alert/Alert';
 import useAuth from '../../hooks/useAuth';
 import AddToList from '../../components/AddToList/AddToList';
+import MagnifyIcon from '../../components/icons/MagnifyIcon';
 
 const Feed = () => {
   const [posts, setPosts] = useState(null);
@@ -63,8 +65,14 @@ const Feed = () => {
   // probably do this on backend
   return (
     <>
-      <div>
-        <p>YOUR FEED</p>
+      <div className={styles.feed}>
+        <Link to="/search">
+          <div className={styles.search}>
+            <MagnifyIcon />
+            <p>Search a book title or author.</p>
+          </div>
+        </Link>
+        <h1>YOUR FEED</h1>
         <div className={styles.posts}>
           {posts?.map((post) => (
             <PostPreview
@@ -88,7 +96,7 @@ const Feed = () => {
         />
       )}
       {notificationInfo.isVisible && (
-        <Notification content={notificationInfo.content} type="alert" />
+        <Alert content={notificationInfo.content} type="alert" />
       )}
       {addToListInfo.isOpen && (
         <AddToList

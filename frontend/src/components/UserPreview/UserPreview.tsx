@@ -13,7 +13,7 @@ const UserPreview = ({
   userFirstName,
   userLastName,
   userProfilePictureUrl,
-  handleCloseModal,
+  handleCloseModal = () => {},
 }: UserPreviewProps) => {
   const userFullName = userFirstName + ' ' + userLastName;
   const navigate = useNavigate();

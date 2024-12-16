@@ -7,7 +7,7 @@ import TrophyIcon from '../icons/TrophyIcon';
 import { fetchFooterInfo } from '../../services/footerInfoService';
 import { useEffect, useState } from 'react';
 import ProfileIcon from '../icons/ProfileIcon';
-import Notification from '../Notifcation/Notification';
+import Alert from '../Alert/Alert';
 import { useNavigate } from 'react-router-dom';
 import createSlug from '../../utils/createSlug';
 
@@ -60,6 +60,10 @@ const Footer = ({ isAuthenticated }) => {
     navigate(`/user/${userFooterInfo.userId}/${createSlug(fullName)}`);
   };
 
+  const handleLeaderboardClick = () => {
+    navigate('/leaderboard');
+  };
+
   const openNotification = (clickedIcon) => {
     setNotificationInfo({
       isOpen: true,
@@ -82,7 +86,11 @@ const Footer = ({ isAuthenticated }) => {
           handleClick={handleListsClick}
         />
         <IconWrapper Icon={PlusCircleIcon} text="Search" />
-        <IconWrapper Icon={TrophyIcon} text="Leaderboard" />
+        <IconWrapper
+          Icon={TrophyIcon}
+          text="Leaderboard"
+          handleClick={handleLeaderboardClick}
+        />
         {/* replace this last one with user profile icon  */}
         {userFooterInfo ? (
           <div className={styles.profileWrapper} onClick={handleProfileClick}>
@@ -102,7 +110,7 @@ const Footer = ({ isAuthenticated }) => {
         )}
       </footer>
       {notificationInfo.isOpen && (
-        <Notification content={notificationInfo.content} type="alert" />
+        <Alert content={notificationInfo.content} type="alert" />
       )}
     </>
   );

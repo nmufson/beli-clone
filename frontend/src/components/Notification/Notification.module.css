@@ -1,0 +1,24 @@
+.notification {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  padding: 0.3rem 0 0.3rem 0;
+}
+
+.userImage {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.bookImage {
+  height: 3rem;
+}
+
+.centerDiv {
+  width: 60%;
+}
+
+.notification a {
+  font-weight: 700;
+}

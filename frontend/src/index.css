@@ -11,6 +11,7 @@
   min-height: 100vh;
   grid-template-rows: auto 1fr auto;
   justify-items: center;
+  gap: 0.5rem;
 }
 
 :root {
@@ -40,7 +41,7 @@ input::placeholder {
 }
 
 main {
-  padding: 0 1rem;
+  padding: 0;
 }
 
 header,
@@ -103,7 +104,7 @@ button.disabled {
   height: 2rem;
 }
 
-.notification {
+.alert {
   top: 10%;
   width: clamp(250px, 50vw, 250px);
   align-items: center;
@@ -111,7 +112,7 @@ button.disabled {
   padding: 0.5rem;
 }
 
-.notification svg {
+.alert svg {
   width: 5rem;
   height: 5rem;
 }

@@ -1,15 +1,15 @@
 import AlertIcon from '../icons/AlertIcon';
 import CheckMarkIcon from '../icons/CheckMarkIcon';
-import styles from './Notification.module.css';
+import styles from './Alert.module.css';
 
 interface NotificationProps {
   content: string | null;
   type: string;
 }
 
-const Notification = ({ content, type }: NotificationProps) => {
+const Alert = ({ content, type }: NotificationProps) => {
   return (
-    <div className={`${styles.notification} notification`}>
+    <div className={`${styles.alert} alert`}>
       <p>{content}</p>
       {type === 'alert' ? (
         <AlertIcon />
@@ -22,4 +22,4 @@ const Notification = ({ content, type }: NotificationProps) => {
   );
 };
 
-export default Notification;
+export default Alert;

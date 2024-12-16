@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.container h1 {
+  font-size: 1.4rem;
+}
+
+.notifications {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

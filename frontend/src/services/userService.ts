@@ -60,36 +60,29 @@ export const unfollowUser = async (userId: number) => {
   }
 };
 
-// router.post(
-//   '/follow-requests',
-//   checkAuthenticated,
-//   userController.sendFollowRequest,
-// );
-// router.put(
-//   '/follow-requests',
-//   checkAuthenticated,
-//   userController.respondToFollowRequest,
-// );
+export const fetchLeaderboard = async () => {
+  const response = await fetch(`${API_URL}/users/leaderboard`, {
+    credentials: 'include',
+  });
 
-// router.delete(
-//   'follow-requests',
-//   checkAuthenticated,
-//   userController.cancelFollowRequest,
+  if (!response.ok) {
+    console.log('failed to fetch leaderboard');
+  }
 
-// export const fetchUserPreviews = async (userIds: number[]) => {
-//   const queryParams = new URLSearchParams({ userIds: userIds.join(',') });
+  const data = response.json();
+  return data;
+};
 
-//   const response = await fetch(
-//     `${API_URL}/users/user-previews/${queryParams}`,
-//     {
-//       credentials: 'include',
-//     },
-//   );
+export const fetchNotifications = async () => {
+  const response = await fetch(`${API_URL}/users/notifications`, {
+    method: 'GET',
+    credentials: 'include',
+  });
 
-//   if (!response.ok) {
-//     console.log('failed fetching user previews');
-//   }
+  if (!response.ok) {
+    console.log('failed to fetch notifications');
+  }
 
-//   const data = response.json();
-//   return data;
-// };
+  const data = response.json();
+  return data;
+};

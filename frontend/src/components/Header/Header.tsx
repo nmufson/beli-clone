@@ -6,7 +6,7 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import {} from 'react-router-dom';
+import BellIcon from '../icons/BellIcon';
 import { useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { logOutUser } from '../../services/logInService';
@@ -26,6 +26,11 @@ const Header = ({ isAuthenticated }) => {
     navigate('/login');
   };
 
+  const handleBellClick = () => {
+    navigate('/notifications');
+    console.log('yoo');
+  };
+
   return (
     <>
       <header>
@@ -34,6 +39,7 @@ const Header = ({ isAuthenticated }) => {
             <Link to={isAuthenticated ? '/feed/user' : '/feed/guest'}>
               Booki
             </Link>
+
             {isAuthenticated ? (
               <button
                 className={styles.logOut}
@@ -44,6 +50,7 @@ const Header = ({ isAuthenticated }) => {
             ) : (
               <button onClick={handleLogInButtonClick}>Log In</button>
             )}
+            <BellIcon handleClick={handleBellClick} />
           </div>
         </div>
         <div>

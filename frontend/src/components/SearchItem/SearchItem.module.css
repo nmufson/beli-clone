@@ -2,14 +2,24 @@
   display: flex;
   justify-content: start;
   align-items: center;
-  border-bottom: 1px solid var(--charcoal);
+  border-bottom: 1px solid var(--soft-gray);
+  margin: 0 1rem;
   gap: 1.5rem;
+  padding: 0.3rem 0;
 }
 
 .infoContainer {
   display: flex;
   flex-direction: column;
   max-width: 50%;
+}
+
+.infoContainer p {
+  font-size: 0.9rem;
+}
+
+.infoContainer small {
+  color: var(--medium-gray);
 }
 
 .addContainer {

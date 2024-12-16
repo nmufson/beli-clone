@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { fetchPost, postComment } from '../../services/feedService';
 import Comment from '../../components/Comment/Comment';
 import UserListModal from '../../components/UserListModal/UserListModal';
-import Notification from '../../components/Notifcation/Notification';
+import Alert from '../../components/Alert/Alert';
 import useAuth from '../../hooks/useAuth';
 import AddToList from '../../components/AddToList/AddToList';
 
@@ -125,7 +125,7 @@ const Post = () => {
         />
       )}
       {notificationInfo.isVisible && (
-        <Notification content={notificationInfo.content} type="alert" />
+        <Alert content={notificationInfo.content} type="alert" />
       )}
       {addToListInfo.isOpen && (
         <AddToList

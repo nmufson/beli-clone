@@ -12,7 +12,7 @@ const Lists = () => {
   const location = useLocation();
 
   const [selectedStatus, setSelectedStatus] = useState(
-    location.state.status || '',
+    (location.state && location.state.status) || '',
   );
   const [loading, setLoading] = useState(true);
 

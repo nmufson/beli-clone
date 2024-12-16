@@ -1,13 +1,15 @@
 import { searchBook } from '../../services/googleBookService';
 import SearchItem from '../../components/SearchItem/SearchItem';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styles from './Search.module.css';
 import { useParams } from 'react-router-dom';
+import MagnifyIcon from '../../components/icons/MagnifyIcon';
 
 const Search = () => {
   const [searchItems, setSearchItems] = useState([]);
   const [query, setQuery] = useState('');
   const { authorSlug } = useParams();
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const fetchSlugBooks = async () => {
@@ -25,6 +27,12 @@ const Search = () => {
     fetchSlugBooks();
   }, [authorSlug]);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   const onChange = async (e) => {
     const value = e.target.value;
     setQuery(value);
@@ -41,13 +49,18 @@ const Search = () => {
   };
 
   return (
-    <div>
-      <input
-        type="text"
-        value={query}
-        onChange={onChange}
-        placeholder="Search for books..."
-      />
+    <div className={styles.search}>
+      <div className={styles.searchContainer}>
+        <MagnifyIcon />
+        <input
+          type="text"
+          value={query}
+          onChange={onChange}
+          placeholder="Search for books..."
+          ref={inputRef}
+        />
+      </div>
+
       <div className={styles.resultsContainer}>
         {searchItems.length > 0 &&
           searchItems

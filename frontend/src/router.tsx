@@ -8,7 +8,8 @@ import SignUp from './pages/SignUp/SignUp';
 import Home from './pages/Home/Home';
 import UserProfile from './pages/UserProfile/UserProfile';
 import Lists from './pages/Lists/Lists';
-
+import Leaderboard from './pages/Leaderboard/Leaderboard';
+import Notifications from './pages/Notifications/Notifications';
 import { createBrowserRouter } from 'react-router-dom';
 
 const router = createBrowserRouter([
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
         element: <Search />,
       },
       {
+        path: 'search/',
+        element: <Search />,
+      },
+      {
         path: 'book/:googleBooksId/:slug',
         element: <Book />,
       },
@@ -57,6 +62,14 @@ const router = createBrowserRouter([
       {
         path: 'signup/',
         element: <SignUp />,
+      },
+      {
+        path: 'leaderboard/',
+        element: <Leaderboard />,
+      },
+      {
+        path: 'notifications/',
+        element: <Notifications />,
       },
     ],
   },

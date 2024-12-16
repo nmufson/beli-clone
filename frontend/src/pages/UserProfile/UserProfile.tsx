@@ -5,20 +5,15 @@ import { useEffect, useState } from 'react';
 import PostPreview from '../../components/PostPreview/PostPreview';
 import UserListModal from '../../components/UserListModal/UserListModal';
 import useAuth from '../../hooks/useAuth';
-import Notification from '../../components/Notifcation/Notification';
+import Alert from '../../components/Alert/Alert';
 import { unfollowUser } from '../../services/userService';
 import {
   sendFollowRequest,
   cancelFollowRequest,
 } from '../../services/userService';
 import { useNavigate } from 'react-router-dom';
-import BookList from '../../components/BookList/BookList';
+
 import ConfirmModal from '../../components/UnfollowModal/UnfollowModal';
-// needs to include userBooks
-// and posts
-// have controller check if we follow them or not, and send that info for rendering
-// make a date formatter
-// type this
 
 // User interface {
 //   id: number;
@@ -301,7 +296,7 @@ const UserProfile = () => {
           />
         )}
         {notificationInfo.isVisible && (
-          <Notification content={notificationInfo.content} type="alert" />
+          <Alert content={notificationInfo.content} type="alert" />
         )}
 
         {confirmModalInfo.isOpen && (

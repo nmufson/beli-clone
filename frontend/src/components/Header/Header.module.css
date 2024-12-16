@@ -14,6 +14,11 @@
   width: 4rem;
 }
 
+.headerContainer svg {
+  height: 2rem;
+  width: 2rem;
+}
+
 .searchButton {
   background-color: var(--soft-gray);
   color: var(--medium-gray);
