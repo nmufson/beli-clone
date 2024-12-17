@@ -49,11 +49,25 @@
   margin-bottom: 1rem;
 }
 
+.followInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: center;
+}
+
+.followInfo div {
+  display: flex;
+  gap: 0.3rem;
+}
+
 .lists {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
+
 .bookListPreview {
   display: flex;
   justify-content: space-between;

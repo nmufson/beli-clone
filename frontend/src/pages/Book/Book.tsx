@@ -8,13 +8,17 @@ import { useEffect, useState } from 'react';
 import roundDownToDecimal from '../../utils/roundDownToDecimal';
 import MenuDown from '../../components/icons/MenuDown';
 import AddToList from '../../components/AddToList/AddToList';
+import { fetchBookByGoogleId } from '../../services/bookService';
+import useAuth from '../../hooks/useAuth';
+import CheckMarkIcon from '../../components/icons/CheckMarkIcon';
 
 const Book = () => {
   const location = useLocation();
-  console.log(location);
-  const [book, setBook] = useState(location?.state?.book || null);
-  const [showModal, setShowModal] = useState(false);
 
+  const [book, setBook] = useState(location?.state?.book || null);
+  const [userBook, setUserBook] = useState(null);
+  const { isAuthenticated, loading } = useAuth();
+  const [addToListInfo, setAddToListInfo] = useState({ isOpen: false });
   const { googleBooksId } = useParams();
 
   useEffect(() => {
@@ -31,8 +35,24 @@ const Book = () => {
     }
   }, [book, googleBooksId]);
 
+  useEffect(() => {
+    const fetchUserBookStatus = async () => {
+      try {
+        if (googleBooksId && isAuthenticated) {
+          const data = await fetchBookByGoogleId(googleBooksId);
+          if (data.userBook) {
+            setUserBook(data.userBook);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUserBookStatus();
+  }, [googleBooksId, book]);
+
   const handleAddClick = () => {
-    setShowModal(true);
+    setAddToListInfo((prev) => ({ ...prev, isOpen: true }));
   };
 
   if (!book) return <p>loading...</p>;
@@ -58,10 +78,28 @@ const Book = () => {
               </p>
             </div>
 
-            <div className={styles.addBook}>
-              <p>Want to Read</p>
+            <div className={styles.addBook} onClick={handleAddClick}>
+              <p>
+                {userBook?.status === 'FINISHED'
+                  ? 'Finished'
+                  : userBook?.status === 'CURRENTLY_READING'
+                    ? 'Currently Reading'
+                    : userBook?.status === 'WANT_TO_READ'
+                      ? 'Want to Read'
+                      : userBook?.status === 'DID_NOT_FINISH'
+                        ? 'Did Not Finish'
+                        : 'Add Book'}
+              </p>
 
-              <MenuDown handleAddClick={handleAddClick} />
+              {userBook?.status === 'FINISHED' ||
+              userBook?.status === 'CURRENTLY_READING' ||
+              userBook?.status === 'WANT_TO_READ' ? (
+                <div className={styles.checkMark}>
+                  <CheckMarkIcon />
+                </div>
+              ) : (
+                <MenuDown handleAddClick={handleAddClick} />
+              )}
             </div>
             <div>
               <p>Description:</p>
@@ -70,7 +108,16 @@ const Book = () => {
           </div>
         </div>
       )}
-      {showModal && <AddToList />}
+      {addToListInfo.isOpen && (
+        <AddToList
+          loggedInUserBookStatus={userBook.status}
+          loggedInUserBookId={userBook.id}
+          onFeed={false}
+          selectedPost={book}
+          setAddToListInfo={setAddToListInfo}
+          // setPost={setPost}
+        />
+      )}
     </>
   );
 };

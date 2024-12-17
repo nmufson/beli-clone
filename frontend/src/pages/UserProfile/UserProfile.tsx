@@ -12,8 +12,9 @@ import {
   cancelFollowRequest,
 } from '../../services/userService';
 import { useNavigate } from 'react-router-dom';
-
-import ConfirmModal from '../../components/UnfollowModal/UnfollowModal';
+import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
+import { respondToFollowRequest } from '../../services/followService';
+import RespondFollowRequestModal from '../../components/RespondFollowRequestModal/RespondFollowRequestModal';
 
 // User interface {
 //   id: number;
@@ -28,7 +29,9 @@ const UserProfile = () => {
   const [otherInfo, setOtherInfo] = useState({
     isOwner: false,
     following: false,
+    followsYou: false,
     followRequestSent: false,
+    followRequestReceived: false,
   });
   const [userListModal, setUserListModal] = useState({
     isOpen: false,
@@ -48,6 +51,7 @@ const UserProfile = () => {
     confirmButtonContent: '',
     onConfirm: null,
   });
+  const [respondFollowModalOpen, setRespondFollowModalOpen] = useState(false);
 
   const [selectedPost, setSelectedPost] = useState(null);
   const [addToListInfo, setAddToListInfo] = useState({
@@ -67,6 +71,26 @@ const UserProfile = () => {
 
   const handleCloseModal = () => {
     setUserListModal({ isOpen: false, title: null, users: null });
+  };
+
+  const handleRespondClick = () => {
+    setRespondFollowModalOpen(true);
+  };
+
+  const handleRespondFollowRequest = async (accepted: boolean) => {
+    try {
+      if (userIdParam) {
+        const userId = parseInt(userIdParam);
+        await respondToFollowRequest(userId, accepted);
+        setOtherInfo((prev) => ({
+          ...prev,
+          followsYou: accepted,
+          followRequestReceived: false,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleFollowClick = async () => {
@@ -121,6 +145,8 @@ const UserProfile = () => {
             isOwner: data.isOwner,
             following: data.following,
             followRequestSent: data.followRequestSent,
+            followRequestReceived: data.followRequestReceived,
+            followsYou: data.followsYou,
           });
           console.log(data);
           setIsOwner(data.isOwner);
@@ -156,7 +182,6 @@ const UserProfile = () => {
         ...prev,
         following: false,
       }));
-      setConfirmModalInfo((prev) => ({ ...prev, isOpen: false }));
     } catch (error) {
       console.log(error);
     }
@@ -169,7 +194,10 @@ const UserProfile = () => {
         ...prev,
         followRequestSent: false,
       }));
-      setConfirmModalInfo((prev) => ({ ...prev, isOpen: false }));
+      setConfirmModalInfo((prev) => ({
+        ...prev,
+        isOpen: false,
+      }));
     } catch (error) {
       console.log(error);
     }
@@ -187,15 +215,27 @@ const UserProfile = () => {
               src={user.profilePictureUrl}
               alt={`${user.firstName} ${user.lastName} profile picture`}
             />
-            {!otherInfo.isOwner && (
-              <button onClick={handleFollowClick}>
-                {otherInfo.following
-                  ? 'Following'
-                  : otherInfo.followRequestSent
-                    ? 'Follow Request Sent'
-                    : 'Follow'}
-              </button>
-            )}
+            <div className={styles.followInfo}>
+              {otherInfo.followsYou ? (
+                <p>follows you</p>
+              ) : otherInfo.followRequestReceived ? (
+                <div>
+                  <p>Requested to follow you,</p>
+                  <strong onClick={handleRespondClick}>respond?</strong>
+                </div>
+              ) : (
+                ''
+              )}
+              {!otherInfo.isOwner && (
+                <button onClick={handleFollowClick}>
+                  {otherInfo.following
+                    ? 'Following'
+                    : otherInfo.followRequestSent
+                      ? 'Follow Request Sent'
+                      : 'Follow'}
+                </button>
+              )}
+            </div>
           </div>
           <div className={styles.followerFollowing}>
             <div data-value="followers" onClick={handleFollowerFollowingClick}>
@@ -307,6 +347,12 @@ const UserProfile = () => {
             content={confirmModalInfo.content}
             cancelButtonContent={confirmModalInfo.cancelButtonContent}
             confirmButtonContent={confirmModalInfo.confirmButtonContent}
+          />
+        )}
+        {respondFollowModalOpen && (
+          <RespondFollowRequestModal
+            setRespondFollowModalOpen={setRespondFollowModalOpen}
+            handleRespond={handleRespondFollowRequest}
           />
         )}
       </>

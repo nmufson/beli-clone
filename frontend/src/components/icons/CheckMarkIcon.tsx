@@ -1,4 +1,4 @@
-const CheckMarkIcon = ({ handleClick }) => (
+const CheckMarkIcon = ({ handleClick = () => {} }) => (
   <svg
     onClick={handleClick}
     xmlns="http://www.w3.org/2000/svg"

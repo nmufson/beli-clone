@@ -13,6 +13,7 @@ import {
   updateShelf,
 } from '../../services/feedService';
 import RankBook from '../RankBook/RankBook';
+import { isDOMComponent } from 'react-dom/test-utils';
 
 const AddToList = ({
   loggedInUserBookStatus,
@@ -21,10 +22,12 @@ const AddToList = ({
   onFeed,
   postId,
   setSelectedPost = (prev) => {},
+  // change this name to bookData later
   selectedPost,
   posts = [],
   setPosts = (prev) => {},
   setPost = (prev) => {},
+  setLoggedInUserBook = (prev) => {},
 }) => {
   const [selectedOption, setSelectedOption] = useState(
     loggedInUserBookStatus || 'NONE',
@@ -39,11 +42,7 @@ const AddToList = ({
     if (onFeed) {
       setSelectedPost(null);
     }
-    setAddToListInfo({
-      isOpen: false,
-      loggedInUserBookId: null,
-      loggedInUserBookStatus: null,
-    });
+    setAddToListInfo((prev) => ({ ...prev, isOpen: false }));
   };
 
   // make it so if findished, asks to rank the book
@@ -56,7 +55,6 @@ const AddToList = ({
       if (!loggedInUserBookId && selectedOption !== 'NONE') {
         try {
           const res = await addBookToShelf(selectedPost, selectedOption);
-          const { addedBook } = res;
         } catch (error) {
           console.log(error);
         }
@@ -80,6 +78,8 @@ const AddToList = ({
       handleCloseModal();
     }
     if (!onFeed) {
+      // fix this part, perhaps instead of onFeed, can use a string variable
+      //  which indidicates whether on feed, post, or book
       setPost((prev) => ({
         ...prev,
         loggedInUserBookStatus:

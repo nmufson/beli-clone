@@ -88,11 +88,7 @@ const RankBook = ({
             index: Math.floor(bookList.length / 2),
           });
         } else {
-          setAddToListInfo({
-            isOpen: false,
-            loggedInUserBookId: null,
-            loggedInUserBookStatus: null,
-          });
+          setAddToListInfo((prev) => ({ ...prev, isOpen: false }));
         }
       } catch (error) {
         console.log(error);
@@ -138,11 +134,7 @@ const RankBook = ({
 
         console.log(result);
         // Display some success notification here
-        setAddToListInfo({
-          isOpen: false,
-          loggedInUserBookId: null,
-          loggedInUserBookStatus: null,
-        });
+        setAddToListInfo((prev) => ({ ...prev, isOpen: false }));
       } catch (error) {
         console.log(error);
       }

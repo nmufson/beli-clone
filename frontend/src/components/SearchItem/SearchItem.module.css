@@ -22,8 +22,9 @@
   color: var(--medium-gray);
 }
 
-.addContainer {
+.searchItem img {
   margin-left: auto;
+  height: 3rem;
 }
 
 .searchItem svg {

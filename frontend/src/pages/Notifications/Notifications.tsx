@@ -5,6 +5,7 @@ import Notification from '../../components/Notification/Notification';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getNotifications = async () => {
@@ -13,10 +14,15 @@ const Notifications = () => {
         setNotifications(data.notifications);
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
     getNotifications();
   }, []);
+
+  // make a nicer loading component
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className={styles.container}>

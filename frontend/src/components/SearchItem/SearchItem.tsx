@@ -23,10 +23,7 @@ const SearchItem = ({ book }) => {
         {book.author && <small>{book.author}</small>}
       </div>
 
-      <div className={styles.addContainer}>
-        <PlusCircleOutlineIcon />
-        <BookmarkIcon />
-      </div>
+      <img src={book.imageURL} alt={`${book.title} image`} />
     </div>
   );
 };
